@@ -59,4 +59,16 @@ export interface Comment {
   author: string; 
   text: string;
   timestamp: string; 
+
+}
+
+export interface Product {
+  code: string;
+  category: string;
+  name: string;
+  price: number;
+  img: string;
+  desc: string;
+  details: string[];
+  stock?: number; // <-- AÑADE ESTA LÍNEA (la '?' la hace opcional)
 }

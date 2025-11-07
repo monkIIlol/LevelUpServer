@@ -1,7 +1,7 @@
 // En src/components/Comments.tsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext'; // Para saber quién comenta
-import type { Comment } from '../types';
+import type { Comment } from '../Types';
 
 
 interface Props {

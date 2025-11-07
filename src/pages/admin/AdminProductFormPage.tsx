@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Product } from '../../Types';
-import { categories } from '../../data/products';
+import { categories } from '../../data/products'; 
 
 const validateForm = (product: Partial<Product>): { ok: boolean, errors: Record<string, string> } => {
     const errors: Record<string, string> = {};
@@ -86,7 +86,7 @@ const AdminProductFormPage = () => {
             price: Number(formData.price),
             stock: Number(formData.stock),
             category: formData.category!,
-            img: formData.img!,
+            img: formData.img!, 
             details: formData.details || [],
         };
 
