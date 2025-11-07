@@ -1,12 +1,11 @@
+
 import React from 'react';
 import { Routes, Route, Outlet } from 'react-router-dom';
-
-//componentes de layout
+// --- COMPONENTES DE LA TIENDA ---
 import Header from './components/Header';
 import Footer from './components/Footer';
-import ScrollToTop from './components/ScrollToTop'; 
-
-//páginas
+import ScrollToTop from './components/ScrollToTop';
+// --- PÁGINAS DE LA TIENDA ---
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -17,13 +16,22 @@ import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import BlogPage from './pages/BlogPage';
 import BlogDetailPage from './pages/BlogDetailPage';
+// --- COMPONENTES DEL ADMIN ---
+import AdminLayout from './pages/admin/AdminLayout';
+import DashboardPage from './pages/admin/DashboardPage';
+import AdminProductsPage from './pages/admin/AdminProductsPage';
+import AdminProductFormPage from './pages/admin/AdminProductFormPage';
+import AdminUsersPage from './pages/admin/AdminUsersPage';
+import AdminUserFormPage from './pages/admin/AdminUserFormPage';
 
+
+// --- PLANTILLA MAESTRA DE LA TIENDA ---
 const AppLayout = () => {
   return (
     <>
-      <ScrollToTop /> 
+      <ScrollToTop />
       <Header />
-      <Outlet /> 
+      <Outlet />
       <Footer />
     </>
   );
@@ -32,8 +40,9 @@ const AppLayout = () => {
 function App() {
   return (
     <Routes>
+      {/* --- RUTAS DE LA TIENDA PÚBLICA --- */}
+
       <Route path="/" element={<AppLayout />}>
-        
         <Route index element={<HomePage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="register" element={<RegisterPage />} />
@@ -44,6 +53,15 @@ function App() {
         <Route path="contact" element={<ContactPage />} />
         <Route path="blog" element={<BlogPage />} />
         <Route path="blog/:id" element={<BlogDetailPage />} /> 
+      </Route>
+
+      {/* --- RUTAS DEL PANEL DE ADMINISTRACIÓN --- */}
+      <Route path="/admin" element={<AdminLayout />}>
+        <Route index element={<DashboardPage />} />
+        <Route path="products" element={<AdminProductsPage />} />
+        <Route path="product-new" element={<AdminProductFormPage />} />
+        <Route path="users" element={<AdminUsersPage />} />
+        <Route path="user-new" element={<AdminUserFormPage />} />
         
       </Route>
     </Routes>

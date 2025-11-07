@@ -1,26 +1,26 @@
 /* admin.css - VERSIÓN FINAL CORREGIDA */
 
 /* Reset básico y tipografía */
-body.admin {
+.admin {
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #121212;
     color: #f0f0f0;
-    /* --- INICIO DE LA CORRECCIÓN --- */
+
     display: grid;
-    grid-template-columns: 220px 1fr; /* Columna fija para sidebar, el resto para el contenido */
-    min-height: 100vh; /* Ocupa al menos toda la altura de la pantalla */
-    /* --- FIN DE LA CORRECCIÓN --- */
+    grid-template-columns: 220px 1fr;
+    /* Columna fija para sidebar, el resto para el contenido */
+    min-height: 100vh;
 }
 
-/* Sidebar */
+/* 2. SIDEBAR */
 .sidebar {
-    /* Se eliminó 'position: fixed' y sus propiedades relacionadas */
     width: 220px;
     background: #1c1c1c;
     border-right: 2px solid #00ff99;
     padding: 2rem 1rem;
     box-sizing: border-box;
+    /* La altura se controla por el grid, no necesitamos 'height: 100vh' aquí */
 }
 
 .sidebar h2 {
@@ -41,19 +41,21 @@ body.admin {
 
 .sidebar nav a:hover,
 .sidebar nav a.active {
+    /* 'active' es la clase que pone React Router */
     background: #00ff99;
     color: #121212;
 }
 
-/* Main area */
-main {
-    /* Se eliminó 'margin-left: 240px' */
+/* 3. ÁREA DE CONTENIDO PRINCIPAL */
+.admin main {
     padding: 2rem;
     width: 100%;
-    box-sizing: border-box; /* Buena práctica para que el padding no afecte el ancho total */
+    box-sizing: border-box;
 }
 
-/* Dashboard cards (SIN CAMBIOS) */
+/* 4. COMPONENTES (Estilos que ya tenías) */
+
+/* Dashboard cards */
 .stats {
     display: flex;
     gap: 1.5rem;
@@ -74,7 +76,7 @@ main {
     transform: scale(1.05);
 }
 
-/* Tables (SIN CAMBIOS) */
+/* Tablas */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -97,7 +99,7 @@ tr:hover {
     background: #2c2c2c;
 }
 
-/* Buttons (SIN CAMBIOS) */
+/* Botones */
 .btn {
     background: #00ff99;
     color: #121212;
@@ -112,24 +114,23 @@ tr:hover {
     background: #00cc77;
 }
 
-/* Small buttons for edit/delete (SIN CAMBIOS) */
-.btn-small {
-    padding: 0.3rem 0.6rem;
-    font-size: 0.85rem;
-    margin: 0 2px;
-}
-
 .btn-edit {
     background: #007bff;
     color: #fff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 5px;
 }
 
 .btn-del {
-    background: #ff4444;
+    background: #dc3545;
     color: #fff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 5px;
 }
 
-/* Forms (SIN CAMBIOS) */
+/* Formularios */
 form {
     background: #1f1f1f;
     padding: 1.5rem;
@@ -140,6 +141,8 @@ form {
 form label {
     display: block;
     margin-bottom: 1rem;
+    color: #fff;
+    /* <-- CORRECCIÓN 2: Devolvemos el color a las etiquetas */
 }
 
 form input,
@@ -153,4 +156,91 @@ form textarea {
     background: #121212;
     color: #f0f0f0;
     box-sizing: border-box;
+}
+
+form input:focus,
+form select:focus,
+form textarea:focus {
+    border-color: #00ff99;
+    outline: none;
+}
+
+/* Errors */
+.error {
+    color: #ff5555;
+    font-size: 0.85rem;
+    margin-top: 0.2rem;
+}
+
+/* Responsive */
+@media(max-width: 768px) {
+    body.admin {
+        grid-template-columns: 1fr;
+        /* El sidebar y el main se ponen uno encima del otro */
+    }
+
+    .sidebar {
+        width: 100%;
+        position: static;
+        height: auto;
+        display: flex;
+        justify-content: space-around;
+        padding: 0.5rem;
+        border-right: none;
+        border-bottom: 2px solid #00ff99;
+    }
+
+    .sidebar h2 {
+        display: none;
+    }
+
+    .admin main {
+        padding: 1.5rem;
+    }
+
+    .stats {
+        flex-direction: column;
+    }
+}
+
+/* textarea */
+textarea {
+    resize: none;
+    width: 100%;
+    height: 150px;
+    font-family: inherit;
+    font-size: 1rem;
+    padding: 0.5em;
+    box-sizing: border-box;
+}
+
+/* Tabla de pedidos recientes */
+.orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-family: 'Arial', sans-serif;
+    background-color: #1f1f1f;
+    color: #fff;
+}
+
+.orders-table th,
+.orders-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #444;
+    text-align: left;
+}
+
+.orders-table th {
+    background-color: #111;
+    font-weight: bold;
+}
+
+.orders-table tr:hover {
+    background-color: #333;
+}
+
+.orders-table td[colspan="4"] {
+    text-align: center;
+    color: #aaa;
 }
