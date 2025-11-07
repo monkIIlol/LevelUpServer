@@ -1,22 +1,31 @@
-// En src/pages/ProductsPage.tsx
-import React, { useState } from 'react';
-import { products, categories } from '../data/products'; // 1. Importamos los datos
-import ProductCard from '../components/ProductCard'; // 2. Importamos el "Lego"
+
+import React, { useState, useEffect } from 'react';
+import { categories } from '../data/products'; 
+import ProductCard from '../components/ProductCard';
 import type { Product } from '../Types';
 
 const ProductsPage = () => {
 
+    const [allProducts, setAllProducts] = useState<Product[]>([]);
+    const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
 
-    const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('');
 
-    const handleFilterApply = () => {
+    useEffect(() => {
+        const productsData: Product[] = JSON.parse(localStorage.getItem('productos') || '[]');
+        setAllProducts(productsData); 
+        setFilteredProducts(productsData); 
+    }, []);
 
-        let tempProducts = products;
+    
+    const handleFilterApply = () => {
+        let tempProducts = allProducts;
+
         if (selectedCategory) {
             tempProducts = tempProducts.filter(p => p.category === selectedCategory);
         }
+
         if (searchQuery) {
             const lowerQuery = searchQuery.toLowerCase();
             tempProducts = tempProducts.filter(p =>
@@ -36,13 +45,14 @@ const ProductsPage = () => {
 
             <div className="products-layout">
 
+                {/* -- Barra lateral de Filtros -- */}
                 <aside aria-label="Filtros">
                     <h3>Filtros</h3>
                     <label>Categoría
                         <select
                             id="filter-category"
                             value={selectedCategory}
-                            onChange={e => setSelectedCategory(e.target.value)} // Actualiza el estado
+                            onChange={e => setSelectedCategory(e.target.value)}
                         >
                             <option value="">Todas</option>
                             {categories.map(cat => (
@@ -55,11 +65,10 @@ const ProductsPage = () => {
                             id="filter-q"
                             type="search"
                             placeholder="ej. 'mouse'"
-                            value={searchQuery} 
-                            onChange={e => setSearchQuery(e.target.value)} // Actualiza el estado
+                            value={searchQuery}
+                            onChange={e => setSearchQuery(e.target.value)}
                         />
                     </label>
-                    
                     <button
                         className="btn"
                         id="apply-filters"
@@ -69,11 +78,15 @@ const ProductsPage = () => {
                     </button>
                 </aside>
 
-                
+                {/* -- Sección de la Grilla de Productos -- */}
                 <section className="products" id="products-grid" aria-live="polite">
-                    {filteredProducts.map(product => (
-                        <ProductCard key={product.code} product={product} />
-                    ))}
+                    {filteredProducts.length > 0 ? (
+                        filteredProducts.map(product => (
+                            <ProductCard key={product.code} product={product} />
+                        ))
+                    ) : (
+                        <p>No se encontraron productos con esos filtros.</p>
+                    )}
                 </section>
 
             </div>

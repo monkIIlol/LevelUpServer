@@ -1,9 +1,8 @@
 
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { products } from '../data/products';
 import { useCart } from '../context/CartContext';
-
+import type { Product } from '../Types';
 
 const money = (clp: number) => {
     return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(clp);
@@ -11,10 +10,11 @@ const money = (clp: number) => {
 
 const ProductDetailPage = () => {
     const { code } = useParams<{ code: string }>();
-    const product = products.find(p => p.code === code);
-
-
     const { addToCart } = useCart();
+
+    const products: Product[] = JSON.parse(localStorage.getItem('productos') || '[]');
+
+    const product = products.find(p => p.code === code);
 
     if (!product) {
         return (
@@ -45,17 +45,18 @@ const ProductDetailPage = () => {
                     </ul>
                 </section>
 
-                
                 <button
                     className="btn"
                     data-add={product.code}
-                    onClick={() => addToCart(product.code)} 
+                    onClick={() => addToCart(product.code)}
                 >
                     Añadir al carrito
                 </button>
             </article>
 
-            <Link to="/products" className="btn">← Volver a productos</Link>
+            <Link to="/products" className="btn" style={{ margin: '1rem auto', display: 'block' }}>
+                ← Volver a productos
+            </Link>
         </main>
     );
 }

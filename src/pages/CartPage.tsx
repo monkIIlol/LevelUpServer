@@ -1,40 +1,52 @@
 
 import React from 'react';
-import { useCart } from '../context/CartContext'; 
-import { useAuth } from '../context/AuthContext'; 
+import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 
-// Función para formatear el dinero
 const money = (clp: number) => {
     return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(clp);
 }
 
 const CartPage = () => {
-    
     const { cartItems, totalPrice, increaseQty, decreaseQty, removeFromCart, clearCart } = useCart();
     const { currentUser } = useAuth();
 
     const handleCheckout = () => {
-        
         const userName = currentUser?.firstName || 'Usuario';
+
+        if (cartItems.length === 0) {
+            alert('Tu carrito está vacío ❌');
+            return;
+        }
+
+        let history: any[] = JSON.parse(localStorage.getItem('cartHistory') || '[]');
+
+        cartItems.forEach(item => {
+            history.push({
+                user: userName,
+                product: item.name,
+                code: item.code,
+                qty: item.qty,
+                type: 'pedido', 
+                timestamp: new Date().toISOString()
+            });
+        });
+
+        localStorage.setItem('cartHistory', JSON.stringify(history));
+
         alert(`¡${userName} realizó su pedido con éxito ✅`);
         clearCart();
     }
 
     return (
-        
         <main className="cart-layout">
             <section className="cart-left">
                 <h2>Mi Carrito de Compras</h2>
                 <div id="cart-items" className="cart-items-list">
 
-                    
                     {cartItems.length === 0 ? (
-
                         <p id="cart-empty" className="cart-empty">Tu carrito está vacío.</p>
-
                     ) : (
-
-                        
                         cartItems.map(item => (
                             <div key={item.code} className="cart-card">
                                 <h3>{item.name} <small>({item.code})</small></h3>
@@ -55,7 +67,6 @@ const CartPage = () => {
             <aside className="cart-right">
                 <div className="cart-summary">
                     <h3>Detalle total</h3>
-                    
                     <p id="cart-total"><strong>Total:</strong> {money(totalPrice)}</p>
                     <button id="cart-clear" className="btn btn-secondary" onClick={clearCart}>
                         Vaciar carrito

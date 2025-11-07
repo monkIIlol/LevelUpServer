@@ -1,13 +1,20 @@
 
-import React from 'react';
-import { products } from '../data/products';
+import React, { useState, useEffect } from 'react';
 import ProductCard from '../components/ProductCard';
+import type { Product } from '../Types'; 
 
 const HomePage = () => {
+    const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+    const [offerProducts, setOfferProducts] = useState<Product[]>([]);
+    const [topSalesProducts, setTopSalesProducts] = useState<Product[]>([]);
 
-    const featuredProducts = products.slice(0, 3);
-    const offerProducts = products.slice(3, 6);
-    const topSalesProducts = products.slice(6, 9);
+    useEffect(() => {
+        const productsData: Product[] = JSON.parse(localStorage.getItem('productos') || '[]');
+
+        setFeaturedProducts(productsData.slice(0, 3));
+        setOfferProducts(productsData.slice(3, 6));
+        setTopSalesProducts(productsData.slice(6, 9));
+    }, []); 
 
     return (
         <main id="main-content">

@@ -1,20 +1,30 @@
-// En src/components/Sidebar.tsx
+
 import React from 'react';
-// NavLink es una versión especial de Link que sabe cuándo está "activa"
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Sidebar = () => {
+    const { logout } = useAuth();
+    const navigate = useNavigate();
+
+
+    const handleLogout = (e: React.MouseEvent) => {
+        e.preventDefault();
+        logout(); 
+        navigate('/login'); 
+    }
+
     return (
-        // Usamos el HTML de tu 'admin/index.html'
         <aside className="sidebar">
             <h2>Admin</h2>
             <nav>
-                {/* 'end' le dice al Dashboard que solo esté 'active' en la ruta exacta '/admin' */}
                 <NavLink to="/admin" end>Dashboard</NavLink>
                 <NavLink to="/admin/products">Productos</NavLink>
                 <NavLink to="/admin/product-new">Nuevo producto</NavLink>
                 <NavLink to="/admin/users">Usuarios</NavLink>
                 <NavLink to="/admin/user-new">Nuevo usuario</NavLink>
+
+                <a href="#" onClick={handleLogout}>Cerrar Sesión</a>
             </nav>
         </aside>
     );

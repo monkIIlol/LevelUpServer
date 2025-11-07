@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Product } from '../../Types';
-import { categories } from '../../data/products'; // Importamos categorías
+import { categories } from '../../data/products';
 
 const validateForm = (product: Partial<Product>): { ok: boolean, errors: Record<string, string> } => {
     const errors: Record<string, string> = {};
@@ -25,15 +25,18 @@ const validateForm = (product: Partial<Product>): { ok: boolean, errors: Record<
     if (!product.category) {
         errors.category = 'Selecciona categoría'; ok = false;
     }
+    if (!product.img || product.img.trim() === '') {
+        errors.img = 'Ruta de la imagen requerida (ej: img/producto.png)'; ok = false;
+    }
 
     return { ok, errors };
 }
 
+
 const AdminProductFormPage = () => {
     const navigate = useNavigate();
-
     const [formData, setFormData] = useState<Partial<Product>>({
-        code: '', name: '', desc: '', price: 0, stock: 0, category: ''
+        code: '', name: '', desc: '', price: 0, stock: 0, category: '', img: ''
     });
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isEditing, setIsEditing] = useState(false);
@@ -76,15 +79,14 @@ const AdminProductFormPage = () => {
 
         const productos: Product[] = JSON.parse(localStorage.getItem('productos') || '[]');
 
-
         const finalProduct: Product = {
             code: formData.code!,
             name: formData.name!,
-            desc: formData.desc || '', 
+            desc: formData.desc || '',
             price: Number(formData.price),
             stock: Number(formData.stock),
             category: formData.category!,
-            img: formData.img || 'img/ejemplo.png',
+            img: formData.img!,
             details: formData.details || [],
         };
 
@@ -113,16 +115,9 @@ const AdminProductFormPage = () => {
                     <input name="name" required maxLength={100} value={formData.name} onChange={handleChange} />
                     {errors.name && <small className="error">{errors.name}</small>}
                 </label>
-
                 <label>Descripción
-                    <textarea
-                        name="desc" 
-                        maxLength={500}
-                        value={formData.desc} 
-                        onChange={handleChange}>
-                    </textarea>
+                    <textarea name="desc" maxLength={500} value={formData.desc} onChange={handleChange}></textarea>
                 </label>
-
                 <label>Precio
                     <input name="price" type="number" step="0.01" min="0" required value={formData.price} onChange={handleChange} />
                     {errors.price && <small className="error">{errors.price}</small>}
@@ -131,6 +126,19 @@ const AdminProductFormPage = () => {
                     <input name="stock" type="number" min="0" step="1" required value={formData.stock} onChange={handleChange} />
                     {errors.stock && <small className="error">{errors.stock}</small>}
                 </label>
+
+                <label>Ruta de Imagen
+                    <input
+                        name="img"
+                        type="text"
+                        required
+                        placeholder="ej: img/nuevo-producto.png"
+                        value={formData.img}
+                        onChange={handleChange}
+                    />
+                    {errors.img && <small className="error">{errors.img}</small>}
+                </label>
+
                 <label>Categoría
                     <select name="category" required id="admin-category" value={formData.category} onChange={handleChange}>
                         <option value="">Selecciona...</option>
