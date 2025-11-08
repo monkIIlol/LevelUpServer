@@ -1,15 +1,13 @@
-// En src/pages/HomePage.tsx
+
 import React, { useState, useEffect } from 'react';
 import ProductCard from '../components/ProductCard';
-import type { Product } from '../types';
+import type { Product } from '../Types';
 
 const HomePage = () => {
-  // Estados para guardar los productos
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [offerProducts, setOfferProducts] = useState<Product[]>([]);
   const [topSalesProducts, setTopSalesProducts] = useState<Product[]>([]);
 
-  // Cargar productos desde localStorage cuando el componente se monta
   useEffect(() => {
     const productsData: Product[] = JSON.parse(localStorage.getItem('productos') || '[]');
     setFeaturedProducts(productsData.slice(0, 3));
@@ -32,7 +30,7 @@ const HomePage = () => {
       <section className="featured">
         <h2> ¡Destacados! </h2>
         {/* --- CORRECCIÓN AQUÍ --- */}
-        <div id="featured-grid" className="grid"> {/* <-- Antes decía "ofertas-grid" */}
+        <div id="featured-grid" className="grid"> 
           {featuredProducts.map(product => (
             <ProductCard key={product.code} product={product} />
           ))}
@@ -42,15 +40,14 @@ const HomePage = () => {
       {/* --- SECCIÓN OFERTAS --- */}
       <div className="ofertas">
         <h2> ¡Ofertas del Mes! </h2>
-        {/* --- CORRECCIÓN AQUÍ --- */}
-        <div className="grid"> {/* <-- Antes decía "ofertas-grid" */}
+        <div className="grid"> 
           {offerProducts.map(product => (
             <ProductCard key={product.code} product={product} />
           ))}
         </div>
       </div>
 
-      {/* --- SECCIÓN TOP VENTAS (Esta ya estaba bien) --- */}
+      {/* --- SECCIÓN TOP VENTAS  --- */}
       <section className="top-ventas">
         <h2> ¡Top Ventas! </h2>
         <div className="grid">
