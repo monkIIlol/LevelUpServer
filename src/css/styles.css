@@ -24,7 +24,7 @@ html, body {
   color: var(--fg);
   font-family: Roboto, system-ui, -apple-system, Segoe UI, Arial, sans-serif;
   line-height: 1.5;
-  height: 100%; /* Asegura que el footer se pueda empujar hacia abajo */
+  height: 100%; 
   display: flex;
   flex-direction: column;
 }
@@ -1326,24 +1326,20 @@ a.btn {
   color: #000;
 }
 
-/* --- ESTILO PARA BOTONES/ENLACES DE NAVEGACIÓN (VOLVER) --- */
 
 .btn-volver-neon {
-  /* La clase .btn-volver-neon se encargará de limitar el ancho */
-  background-color: #39FF14 !important; /* El verde neón */
+  background-color: #39FF14 !important; 
   color: #000;
   font-weight: bold;
   text-align: center;
   padding: 1rem 2rem;
   border-radius: 8px; 
   
-  /* --- ESTAS PROPIEDADES ARREGLAN EL ANCHO AL 100% --- */
-  display: block !important; /* Para que margin: auto funcione */
-  max-width: 350px !important; /* Limitamos el ancho MÁXIMO */
-  width: fit-content; /* Ocupa solo el espacio de su contenido */
-  margin: 1.5rem auto !important; /* Lo centramos horizontalmente */
-  
-  /* Aseguramos que el Link dentro tenga el color correcto */
+  display: block !important; 
+  max-width: 350px !important;
+  width: fit-content; 
+  margin: 1.5rem auto !important; 
+
   text-decoration: none; 
 }
 

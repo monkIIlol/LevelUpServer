@@ -1,10 +1,8 @@
-// En src/components/Comments.tsx
+
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext'; // Para saber quién comenta
+import { useAuth } from '../context/AuthContext'; 
 import type { Comment } from '../Types';
 
-// NOTA: Para no forzar la importación de Link, usaremos un <a> con href="/login"
-// y le aplicaremos la clase "btn" para que se vea como un botón.
 
 interface Props {
     postId: string;
@@ -31,13 +29,10 @@ const Comments: React.FC<Props> = ({ postId }) => {
         if (!newCommentText.trim()) return;
 
         if (!currentUser) {
-            // Esto nunca debería pasar porque el botón/campo se deshabilita, 
-            // pero es una buena práctica de seguridad.
             alert('Debes iniciar sesión para poder comentar.');
             return;
         }
 
-        // Creamos el nuevo objeto de comentario
         const newComment: Comment = {
             id: Date.now().toString(),
             author: currentUser.firstName || currentUser.email,
@@ -93,13 +88,10 @@ const Comments: React.FC<Props> = ({ postId }) => {
                 </div>
 
                 {currentUser ? (
-                    // 1. SI HAY USUARIO: Muestra el botón de Publicar
                     <button className="btn" type="submit">
                         Publicar comentario
                     </button>
                 ) : (
-                    // 2. SI NO HAY USUARIO: Muestra un enlace/botón a /login
-                    // Usamos <a> para redirigir y className="btn" para el estilo.
                     <a href="/login" className="btn" style={{ textAlign: 'center' }}>
                         Inicia sesión para comentar
                     </a>
