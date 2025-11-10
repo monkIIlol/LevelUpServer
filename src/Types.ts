@@ -70,5 +70,5 @@ export interface Product {
   img: string;
   desc: string;
   details: string[];
-  stock?: number; // <-- AÑADE ESTA LÍNEA (la '?' la hace opcional)
+  stock?: number; 
 }

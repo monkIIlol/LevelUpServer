@@ -1,18 +1,16 @@
 
 import React, { useState } from 'react';
 
-// Copiamos la función de validación de email
+//Validacion email
 const emailValido = (email: string): boolean => {
     if (!email.trim() || email.length > 100) return false;
-    // Esta es la validación específica de tu 'validate.js' para el contacto
     return /^[^\s@]+@(duoc\.cl|profesor\.duoc\.cl|gmail\.com)$/.test(email.trim());
 }
 
 const ContactPage = () => {
-    // Estados para guardar los datos y errores
     const [formData, setFormData] = useState({ name: '', email: '', comment: '' });
     const [errors, setErrors] = useState<Partial<typeof formData>>({});
-    const [success, setSuccess] = useState(false); // Para mostrar mensaje de éxito
+    const [success, setSuccess] = useState(false); 
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setFormData({

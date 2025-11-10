@@ -3,15 +3,17 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext'; // Para saber quién comenta
 import type { Comment } from '../Types';
 
+// NOTA: Para no forzar la importación de Link, usaremos un <a> con href="/login"
+// y le aplicaremos la clase "btn" para que se vea como un botón.
 
 interface Props {
-    postId: string; 
+    postId: string;
 }
 
 const COMMENTS_STORAGE_KEY = 'blog_comments';
 
 const Comments: React.FC<Props> = ({ postId }) => {
-    const { currentUser } = useAuth(); 
+    const { currentUser } = useAuth();
 
     const [comments, setComments] = useState<Comment[]>([]);
     const [newCommentText, setNewCommentText] = useState('');
@@ -21,34 +23,36 @@ const Comments: React.FC<Props> = ({ postId }) => {
         const allComments = allCommentsJson ? JSON.parse(allCommentsJson) : {};
 
         setComments(allComments[postId] || []);
-    }, [postId]); 
+    }, [postId]);
 
     // Lógica para guardar un nuevo comentario
     const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault(); 
-        if (!newCommentText.trim()) return; 
+        e.preventDefault();
+        if (!newCommentText.trim()) return;
 
         if (!currentUser) {
+            // Esto nunca debería pasar porque el botón/campo se deshabilita, 
+            // pero es una buena práctica de seguridad.
             alert('Debes iniciar sesión para poder comentar.');
             return;
         }
 
         // Creamos el nuevo objeto de comentario
         const newComment: Comment = {
-            id: Date.now().toString(), 
-            author: currentUser.firstName || currentUser.email, 
+            id: Date.now().toString(),
+            author: currentUser.firstName || currentUser.email,
             text: newCommentText,
-            timestamp: new Date().toISOString() 
+            timestamp: new Date().toISOString()
         };
 
         const updatedComments = [...comments, newComment];
         setComments(updatedComments);
-        setNewCommentText(''); 
+        setNewCommentText('');
 
         const allCommentsJson = localStorage.getItem(COMMENTS_STORAGE_KEY);
         const allComments = allCommentsJson ? JSON.parse(allCommentsJson) : {};
 
-        allComments[postId] = updatedComments; 
+        allComments[postId] = updatedComments;
 
         localStorage.setItem(COMMENTS_STORAGE_KEY, JSON.stringify(allComments));
     };
@@ -87,9 +91,19 @@ const Comments: React.FC<Props> = ({ postId }) => {
                         disabled={!currentUser}
                     />
                 </div>
-                <button className="btn" type="submit" disabled={!currentUser}>
-                    {currentUser ? "Publicar comentario" : "Inicia sesión para comentar"}
-                </button>
+
+                {currentUser ? (
+                    // 1. SI HAY USUARIO: Muestra el botón de Publicar
+                    <button className="btn" type="submit">
+                        Publicar comentario
+                    </button>
+                ) : (
+                    // 2. SI NO HAY USUARIO: Muestra un enlace/botón a /login
+                    // Usamos <a> para redirigir y className="btn" para el estilo.
+                    <a href="/login" className="btn" style={{ textAlign: 'center' }}>
+                        Inicia sesión para comentar
+                    </a>
+                )}
             </form>
         </section>
     );

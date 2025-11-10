@@ -1,18 +1,13 @@
-// En src/context/CartContext.tsx
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { Product, CartItem, CartContextType } from '../Types';
-// (No importamos 'products' aquí, lo leemos de localStorage en 'addToCart')
 
-// 1. Creamos y EXPORTAMOS el Context (UNA SOLA VEZ)
 export const CartContext = createContext<CartContextType | undefined>(undefined);
-
-// 2. Creamos el "Proveedor" (el componente con la lógica)
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const CART_STORAGE_KEY = 'mi_carrito';
 
-  // Al cargar la app, revisa el localStorage
   useEffect(() => {
     const storedCart = localStorage.getItem(CART_STORAGE_KEY);
     if (storedCart) {
@@ -20,15 +15,13 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, []);
 
-  // Función genérica para guardar cambios
   const updateCart = (newCart: CartItem[]) => {
     setCartItems(newCart);
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(newCart));
   }
 
-  // --- LÓGICA DEL CARRITO (Corregida para leer de localStorage) ---
+  // --- LÓGICA DEL CARRITO ---
   const addToCart = (code: string) => {
-    // Leemos la lista de productos COMPLETA desde la "bodega"
     const allProducts: Product[] = JSON.parse(localStorage.getItem('productos') || '[]');
     const productToAdd = allProducts.find(p => p.code === code);
 
@@ -57,7 +50,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     alert(`Añadido: ${productToAdd.name}`);
   };
 
-  // --- (El resto de tus funciones: increaseQty, decreaseQty, etc.) ---
+  
   const increaseQty = (code: string) => {
     const newCart = cartItems.map(item =>
       item.code === code ? { ...item, qty: item.qty + 1 } : item
@@ -99,7 +92,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   );
 }
 
-// Hook para usar el carrito
+// Hook carrito
 export const useCart = () => {
   const context = useContext(CartContext);
   if (context === undefined) {

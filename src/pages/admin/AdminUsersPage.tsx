@@ -1,7 +1,7 @@
-// En src/pages/admin/AdminUsersPage.tsx
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { User } from '../../Types'; // Importamos el "molde" de Usuario
+import type { User } from '../../Types'; 
 
 const AdminUsersPage = () => {
     const navigate = useNavigate();

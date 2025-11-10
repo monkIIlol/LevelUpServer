@@ -54,9 +54,11 @@ const ProductDetailPage = () => {
                 </button>
             </article>
 
-            <Link to="/products" className="btn" style={{ margin: '1rem auto', display: 'block' }}>
-                ← Volver a productos
-            </Link>
+            <div className="btn-volver-neon">
+                <Link to="/products" style={{ color: '#000', textDecoration: 'none', display: 'block' }}>
+                    ← Volver a productos
+                </Link>
+            </div>
         </main>
     );
 }

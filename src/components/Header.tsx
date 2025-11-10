@@ -16,7 +16,7 @@ const Header = () => {
     <header className="site-header">
       <div className="header-left">
         <a className="brand" href="/">
-          <img src="/assets/logo.svg" alt="Logo Level‑Up Gamer" className="logo" />
+          <img src="/img/logo.svg.png" alt="Logo Level‑Up Gamer" className="logo" />
           <span>Level‑Up Gamer</span>
         </a>
         <nav className="main-nav" aria-label="Principal">

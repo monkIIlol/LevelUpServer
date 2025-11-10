@@ -1,9 +1,9 @@
-// En src/pages/admin/AdminUserFormPage.tsx
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { User } from '../../Types';
 
-// --- FUNCIONES DE VALIDACIÓN (Copiadas de tu validate.js) ---
+// --- FUNCIONES DE VALIDACIÓN  ---
 const regiones = {
     'Metropolitana de Santiago': ['Santiago', 'San Bernardo', 'Maipú', 'Puente Alto'],
     'Valparaíso': ['Valparaíso', 'Viña del Mar', 'Quilpué'],
@@ -36,7 +36,6 @@ const emailValido = (email: string): boolean => {
 const AdminUserFormPage = () => {
     const navigate = useNavigate();
 
-    // Estado para todos los campos del formulario
     const [formData, setFormData] = useState<Partial<User>>({
         run: '', firstName: '', lastName: '', email: '', role: 'Cliente', region: '', comuna: '', address: '', birthDate: ''
     });
@@ -45,7 +44,6 @@ const AdminUserFormPage = () => {
     const [editIndex, setEditIndex] = useState<number | null>(null);
     const [comunas, setComunas] = useState<string[]>([]);
 
-    // Efecto para rellenar comunas
     useEffect(() => {
         if (formData.region) {
             setComunas(regiones[formData.region as keyof typeof regiones] || []);
@@ -54,7 +52,6 @@ const AdminUserFormPage = () => {
         }
     }, [formData.region]);
 
-    // 'useEffect' para cargar los datos si estamos editando
     useEffect(() => {
         const indexStr = localStorage.getItem('editUserIndex');
         if (indexStr !== null) {
@@ -63,18 +60,17 @@ const AdminUserFormPage = () => {
             const userToEdit = users[index];
 
             if (userToEdit) {
-                setFormData(userToEdit); // Rellena el formulario
+                setFormData(userToEdit); 
                 setIsEditing(true);
                 setEditIndex(index);
             }
         }
-        // Al salir, limpiamos el 'editUserIndex'
+
         return () => {
             localStorage.removeItem('editUserIndex');
         }
-    }, []); // El '[]' vacío significa "ejecútate solo al inicio"
+    }, []); 
 
-    // Manejador de cambios genérico
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({
             ...formData,
@@ -82,14 +78,14 @@ const AdminUserFormPage = () => {
         });
     };
 
-    // Lógica para guardar (traducida de tu 'validate.js')
+    // Lógica para guardar 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setErrors({});
         let ok = true;
         const newErrors: Record<string, string> = {};
 
-        // Validaciones (copiadas de tu 'validate.js' de registro)
+        // Validaciones 
         if (!validarRUN(formData.run!)) { newErrors.run = 'RUN inválido'; ok = false; }
         if (!formData.firstName || !soloLetras(formData.firstName)) { newErrors.firstName = 'Nombre inválido'; ok = false; }
         if (!formData.lastName || !soloLetras(formData.lastName)) { newErrors.lastName = 'Apellido inválido'; ok = false; }
@@ -106,7 +102,6 @@ const AdminUserFormPage = () => {
 
         const usuarios: User[] = JSON.parse(localStorage.getItem('usuarios') || '[]');
 
-        // Creamos el objeto final (asegurándonos de que 'password' no se pierda si existe)
         const finalUser: User = {
             run: formData.run!,
             firstName: formData.firstName!,
@@ -117,17 +112,14 @@ const AdminUserFormPage = () => {
             comuna: formData.comuna!,
             address: formData.address!,
             birthDate: formData.birthDate || null,
-            password: formData.password || '1234' // Asigna una contraseña por defecto si estás creando desde el admin
+            password: formData.password || '1234' 
         };
 
         if (isEditing && editIndex !== null) {
-            // MODO EDICIÓN
-            // Mantenemos la contraseña original si no la estamos editando
             finalUser.password = usuarios[editIndex].password;
             usuarios[editIndex] = finalUser;
             alert('Usuario actualizado ✅');
         } else {
-            // MODO NUEVO
             usuarios.push(finalUser);
             alert('Usuario agregado ✅');
         }
@@ -139,8 +131,6 @@ const AdminUserFormPage = () => {
     return (
         <div>
             <h1>{isEditing ? 'Editar Usuario' : 'Nuevo Usuario'}</h1>
-
-            {/* Tu formulario de 'admin-user-new.html' traducido */}
             <form id="form-admin-user" noValidate onSubmit={handleSubmit}>
                 <label>RUN
                     <input name="run" required minLength={7} maxLength={9} placeholder="19011022K" value={formData.run} onChange={handleChange} />
@@ -188,9 +178,6 @@ const AdminUserFormPage = () => {
                     <input name="address" required maxLength={300} value={formData.address} onChange={handleChange} />
                     {errors.address && <small className="error">{errors.address}</small>}
                 </label>
-
-                {/* Nota: No incluimos un campo de contraseña para simplificar,
-           el admin no debería manejar contraseñas de usuarios. */}
 
                 <button className="btn" type="submit">{isEditing ? 'Actualizar' : 'Guardar'}</button>
             </form>

@@ -33,7 +33,7 @@ const ProductCard: React.FC<Props> = ({ product }) => {
                     <button
                         className="btn"
                         data-add={product.code}
-                        onClick={handleAddToCart} // El botón ahora funciona
+                        onClick={handleAddToCart} 
                     >
                         Añadir
                     </button>

@@ -988,7 +988,7 @@ form button.btn:hover {
 
 .blog-grid .card {
   overflow: hidden;
-  min-height: auto; /* Anula el min-height de .card */
+  min-height: auto; 
 }
 
 .blog-grid .card img {
@@ -1326,5 +1326,24 @@ a.btn {
   color: #000;
 }
 
+/* --- ESTILO PARA BOTONES/ENLACES DE NAVEGACIÓN (VOLVER) --- */
 
+.btn-volver-neon {
+  /* La clase .btn-volver-neon se encargará de limitar el ancho */
+  background-color: #39FF14 !important; /* El verde neón */
+  color: #000;
+  font-weight: bold;
+  text-align: center;
+  padding: 1rem 2rem;
+  border-radius: 8px; 
+  
+  /* --- ESTAS PROPIEDADES ARREGLAN EL ANCHO AL 100% --- */
+  display: block !important; /* Para que margin: auto funcione */
+  max-width: 350px !important; /* Limitamos el ancho MÁXIMO */
+  width: fit-content; /* Ocupa solo el espacio de su contenido */
+  margin: 1.5rem auto !important; /* Lo centramos horizontalmente */
+  
+  /* Aseguramos que el Link dentro tenga el color correcto */
+  text-decoration: none; 
+}
 
