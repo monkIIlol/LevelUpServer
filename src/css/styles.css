@@ -412,13 +412,38 @@ button {
   cursor: pointer;
   font-weight: bold;
 }
-.btn-dec { background-color: #0a0a0a; color: #fff; } 
-.btn-inc { background-color: #0f0; color: #000; } 
-.btn-rem { background-color: #111; color: #fff; } 
 
-.btn-dec:hover { background-color: #111; }
-.btn-inc:hover { background-color: #0c0; }
-.btn-rem:hover { background-color: #222; }
+/* Botón DISMINUIR (-) */
+.btn-dec { 
+  background-color: #ffffff !important; /* Amarillo/Naranja */
+  color: #212529 !important; /* Texto oscuro */
+} 
+
+/* Botón AUMENTAR (+) */
+.btn-inc { 
+  background-color: #000000 !important; /* Verde */
+  color: #fff !important; 
+} 
+
+/* Botón QUITAR */
+.btn-rem { 
+  background-color: #dc3545 !important; /* Rojo */
+  color: #fff !important; 
+} 
+
+/* --- HOVERS --- */
+.btn-dec:hover { 
+  background-color: #ffffff !important; 
+  color: #212529 !important;
+}
+.btn-inc:hover { 
+  background-color: #000000 !important; 
+  color: #fff !important;
+}
+.btn-rem:hover { 
+  background-color: #c82333 !important; 
+  color: #fff !important;
+}
 
 /* --- Tarjetas (Cards) --- */
 .card {
