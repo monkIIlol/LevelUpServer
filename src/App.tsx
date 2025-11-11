@@ -1,11 +1,10 @@
-
 import React from 'react';
 import { Routes, Route, Outlet } from 'react-router-dom';
-// --- COMPONENTES DE LA TIENDA ---
+//COMPONENTES DE LA TIENDA 
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
-// --- PÁGINAS DE LA TIENDA ---
+//PÁGINAS DE LA TIENDA 
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -16,16 +15,18 @@ import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import BlogPage from './pages/BlogPage';
 import BlogDetailPage from './pages/BlogDetailPage';
-// --- COMPONENTES DEL ADMIN ---
+// --- COMPONENTES DEL ADMIN 
 import AdminLayout from './pages/admin/AdminLayout';
 import DashboardPage from './pages/admin/DashboardPage';
 import AdminProductsPage from './pages/admin/AdminProductsPage';
 import AdminProductFormPage from './pages/admin/AdminProductFormPage';
 import AdminUsersPage from './pages/admin/AdminUsersPage';
 import AdminUserFormPage from './pages/admin/AdminUserFormPage';
+import CheckoutPage from './pages/CheckoutPage';
+import CheckoutSuccessPage from './pages/CheckoutSuccessPage';
+import CheckoutErrorPage from './pages/CheckoutErrorPage';
+import AdminOrdersPage from './pages/admin/AdminOrdersPage';
 
-
-// --- PLANTILLA MAESTRA DE LA TIENDA ---
 const AppLayout = () => {
   return (
     <>
@@ -40,8 +41,7 @@ const AppLayout = () => {
 function App() {
   return (
     <Routes>
-      {/* --- RUTAS DE LA TIENDA PÚBLICA --- */}
-
+      {/*RUTAS DE LA TIENDA*/}
       <Route path="/" element={<AppLayout />}>
         <Route index element={<HomePage />} />
         <Route path="login" element={<LoginPage />} />
@@ -53,11 +53,15 @@ function App() {
         <Route path="contact" element={<ContactPage />} />
         <Route path="blog" element={<BlogPage />} />
         <Route path="blog/:id" element={<BlogDetailPage />} /> 
+        <Route path="checkout" element={<CheckoutPage />} />
+        <Route path="checkout-success" element={<CheckoutSuccessPage />} />
+        <Route path="checkout-error" element={<CheckoutErrorPage />} />
       </Route>
 
-      {/* --- RUTAS DEL PANEL DE ADMINISTRACIÓN --- */}
+      {/*RUTAS DEL PANEL DE ADMINISTRACIÓN*/}
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<DashboardPage />} />
+        <Route path="orders" element={<AdminOrdersPage />} />
         <Route path="products" element={<AdminProductsPage />} />
         <Route path="product-new" element={<AdminProductFormPage />} />
         <Route path="users" element={<AdminUsersPage />} />

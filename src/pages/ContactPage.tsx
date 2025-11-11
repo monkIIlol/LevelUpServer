@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { ContactoMensaje } from '../Types'; // Importamos el nuevo tipo
+import type { ContactoMensaje } from '../Types'; 
 
 //Validacion email
 const emailValido = (email: string): boolean => {
@@ -44,9 +44,6 @@ const ContactPage = () => {
             return;
         }
 
-        // --- INICIO DE LA ADICIÓN (LÓGICA DE GUARDADO) ---
-
-        // 1. Crear el nuevo mensaje
         const nuevoMensaje: ContactoMensaje = {
             id: new Date().toISOString(),
             name: formData.name,
@@ -55,19 +52,16 @@ const ContactPage = () => {
             timestamp: new Date().toLocaleString('es-CL')
         };
 
-        // 2. Obtener mensajes existentes de localStorage
         const mensajesGuardados: ContactoMensaje[] = JSON.parse(
             localStorage.getItem('mensajesContacto') || '[]'
         );
 
-        // 3. Agregar el nuevo mensaje (al principio) y guardar
         const mensajesActualizados = [nuevoMensaje, ...mensajesGuardados];
         localStorage.setItem('mensajesContacto', JSON.stringify(mensajesActualizados));
 
-        // --- FIN DE LA ADICIÓN ---
 
 
-        // Si todo está ok (esto ya lo tenías)
+        // Si todo está ok 
         alert('Mensaje enviado ✅');
         setSuccess(true);
         setFormData({ name: '', email: '', comment: '' });
@@ -80,7 +74,7 @@ const ContactPage = () => {
             </header>
 
             <div className="form-container">
-                <form id="form-contact" onSubmit={handleSubmit}>
+                <form id="form-contact" onSubmit={handleSubmit} noValidate>
                     <label>Nombre
                         <input name="name" type="text" maxLength={100} required value={formData.name} onChange={handleChange} />
                         {errors.name && <small className="error">{errors.name}</small>}

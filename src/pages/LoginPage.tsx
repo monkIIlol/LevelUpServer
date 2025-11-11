@@ -1,42 +1,35 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom'; // 1. Importé Link
-import { useAuth } from '../context/AuthContext';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext'; 
 import type { User } from '../Types';
+import { Form, Button, Alert } from 'react-bootstrap';
+
 
 const LoginPage = () => {
-
     const navigate = useNavigate();
     const { login } = useAuth();
-
-
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
-    // --- LÓGICA DEL FORMULARIO ---
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
-
         const usuarios: User[] = JSON.parse(localStorage.getItem('usuarios') || '[]');
         const usuarioEncontrado = usuarios.find(u => u.email === email);
 
-
         if (usuarioEncontrado && usuarioEncontrado.password === password) {
-            // SI el usuario existe Y la contraseña es correcta
             alert('Inicio de sesión exitoso ✅');
             login(usuarioEncontrado);
             navigate('/');
-
         } else if (email === "admin@levelup.cl" && password === "admin123") {
-            // Caso especial para el admin
             const adminUser: User = {
                 firstName: "Admin", email: "admin@levelup.cl", role: "Administrador",
                 run: '0-0', lastName: 'Admin', region: '', comuna: '', address: '', birthDate: null
             };
             login(adminUser);
             navigate('/admin');
-
         } else {
             setError('Correo o contraseña incorrectos');
         }
@@ -49,45 +42,46 @@ const LoginPage = () => {
             </header>
 
             <div className="form-container">
-
-                <form id="form-login" onSubmit={handleSubmit}>
-                    <label>Correo
-                        <input
-                            name="email"
+                <Form id="form-login" onSubmit={handleSubmit} noValidate>
+                    
+                    <Form.Group className="mb-3" controlId="loginEmail">
+                        <Form.Label>Correo</Form.Label>
+                        <Form.Control
                             type="email"
+                            name="email"
                             maxLength={100}
                             required
                             value={email}
                             onChange={e => setEmail(e.target.value)}
                         />
-                    </label>
-                    <label>Contraseña
-                        <input
-                            name="password"
+                    </Form.Group>
+
+                    <Form.Group className="mb-3" controlId="loginPassword">
+                        <Form.Label>Contraseña</Form.Label>
+                        <Form.Control
                             type="password"
+                            name="password"
                             minLength={4}
                             maxLength={10}
                             required
                             value={password}
                             onChange={e => setPassword(e.target.value)}
                         />
-                    </label>
+                    </Form.Group>
 
-                    {/* Mostramos el error si existe */}
-                    {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
+                    {error && <Alert variant="danger" className="text-center">{error}</Alert>}
+                    <Button type="submit" className="btn">
+                        Entrar
+                    </Button>
 
-                    <button className="btn" type="submit">Entrar</button>
-
-                    {/* --- 2. AQUÍ ESTÁ EL ENLACE A REGISTRO --- */}
                     <p style={{ textAlign: 'center', marginTop: '1rem', color: '#ccc' }}>
                         ¿No tienes cuenta?{' '}
                         <Link to="/register" style={{ color: '#00e676', fontWeight: 'bold', textDecoration: 'none' }}>
                             Regístrate
                         </Link>
                     </p>
-                    {/* --- FIN DE LA ADICIÓN --- */}
 
-                </form>
+                </Form>
             </div>
         </main>
     );

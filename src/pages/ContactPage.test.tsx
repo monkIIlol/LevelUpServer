@@ -1,11 +1,9 @@
-// --- 1. IMPORTACIONES ---
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
-import ContactPage from './ContactPage'; // Importamos el componente a probar
+import ContactPage from './ContactPage'; 
 
-// --- 2. CONFIGURACIÓN DEL MOCK DE LOCALSTORAGE y ALERT ---
 const localStorageMock = (() => {
     let store: { [key: string]: string } = {};
     return {
@@ -25,7 +23,6 @@ Object.defineProperty(window, 'localStorage', {
     value: localStorageMock
 });
 
-// Función "wrapper" para renderizar el componente
 const renderComponent = () => {
     render(
         <BrowserRouter>
@@ -34,7 +31,6 @@ const renderComponent = () => {
     );
 };
 
-// Antes de CADA prueba, limpiamos los mocks
 beforeEach(() => {
     vi.clearAllMocks();
     localStorageMock.clear();
@@ -43,10 +39,10 @@ beforeEach(() => {
 });
 
 
-// --- 3. LAS PRUEBAS ---
+//PRUEBAS ---
 describe('Componente: ContactPage', () => {
 
-    // --- PRUEBA 1: (Sin cambios) ---
+    // --- PRUEBA 1: 
     it('debería actualizar el estado (state) al escribir en los inputs', async () => {
         const user = userEvent.setup();
         renderComponent();
@@ -68,7 +64,7 @@ describe('Componente: ContactPage', () => {
     });
 
 
-    // --- PRUEBA 2: (¡CORREGIDA CON TEXTO FLEXIBLE!) ---
+    // --- PRUEBA 2
     it('debería mostrar mensajes de error si el formulario se envía vacío', async () => {
         const user = userEvent.setup();
         renderComponent();
@@ -76,25 +72,21 @@ describe('Componente: ContactPage', () => {
         const submitButton = screen.getByRole('button', { name: /Enviar/i });
         await user.click(submitButton);
 
-        // --- INICIO DE LA CORRECCIÓN ---
-        // En lugar de buscar el texto exacto, buscamos las partes únicas
-        // de tus mensajes de error. ¡Esto es mucho más seguro!
+        console.log("--- DEBUG: HTML DESPUÉS DEL CLIC ---");
+        screen.debug();
+        console.log("-------------------------------------");
+
         await waitFor(() => {
-            // Busca el error que contiene "máx 100" (para el nombre)
             expect(screen.getByText(/máx 100/i)).toBeInTheDocument();
-            // Busca el error que contiene "@duoc.cl" (para el email)
             expect(screen.getByText(/@duoc.cl/i)).toBeInTheDocument();
-            // Busca el error que contiene "máx 500" (para el comentario)
             expect(screen.getByText(/máx 500/i)).toBeInTheDocument();
         });
-        // --- FIN DE LA CORRECCIÓN ---
 
-        // Verificamos que NUNCA se llamó a localStorage (porque la validación falló)
         expect(localStorageMock.setItem).not.toHaveBeenCalled();
     });
 
 
-    // --- PRUEBA 3: (Sin cambios) ---
+    // --- PRUEBA 3:
     it('debería enviar el formulario, guardar en localStorage y limpiar los campos', async () => {
         const user = userEvent.setup();
         renderComponent();

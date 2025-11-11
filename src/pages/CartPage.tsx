@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom'; 
 
 const money = (clp: number) => {
     return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(clp);
@@ -9,33 +8,14 @@ const money = (clp: number) => {
 
 const CartPage = () => {
     const { cartItems, totalPrice, increaseQty, decreaseQty, removeFromCart, clearCart } = useCart();
-    const { currentUser } = useAuth();
+    const navigate = useNavigate(); 
 
-    const handleCheckout = () => {
-        const userName = currentUser?.firstName || 'Usuario';
-
+    const handleGoToCheckout = () => {
         if (cartItems.length === 0) {
             alert('Tu carrito está vacío ❌');
             return;
         }
-
-        let history: any[] = JSON.parse(localStorage.getItem('cartHistory') || '[]');
-
-        cartItems.forEach(item => {
-            history.push({
-                user: userName,
-                product: item.name,
-                code: item.code,
-                qty: item.qty,
-                type: 'pedido', 
-                timestamp: new Date().toISOString()
-            });
-        });
-
-        localStorage.setItem('cartHistory', JSON.stringify(history));
-
-        alert(`¡${userName} realizó su pedido con éxito ✅`);
-        clearCart();
+        navigate('/checkout'); 
     }
 
     return (
@@ -71,8 +51,8 @@ const CartPage = () => {
                     <button id="cart-clear" className="btn btn-secondary" onClick={clearCart}>
                         Vaciar carrito
                     </button>
-                    <button id="cart-checkout" className="btn btn-primary" onClick={handleCheckout}>
-                        Hacer pedido
+                    <button id="cart-checkout" className="btn btn-primary" onClick={handleGoToCheckout}>
+                        Ir a Pagar
                     </button>
                 </div>
             </aside>

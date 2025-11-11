@@ -1,7 +1,6 @@
-// En src/components/Header.tsx
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useCart } from '../context/CartContext'; // 1. IMPORTAMOS EL CEREBRO DEL CARRITO
+import { useCart } from '../context/CartContext'; 
 import UserMenu from './UserMenu';
 
 const Header = () => {

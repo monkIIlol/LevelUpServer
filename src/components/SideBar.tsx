@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -19,6 +18,7 @@ const Sidebar = () => {
             <h2>Admin</h2>
             <nav>
                 <NavLink to="/admin" end>Dashboard</NavLink>
+                <NavLink to="/admin/orders">Pedidos</NavLink>
                 <NavLink to="/admin/products">Productos</NavLink>
                 <NavLink to="/admin/product-new">Nuevo producto</NavLink>
                 <NavLink to="/admin/users">Usuarios</NavLink>

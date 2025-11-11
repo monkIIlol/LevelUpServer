@@ -1,11 +1,13 @@
-// En src/pages/RegisterPage.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import type { User } from '../Types';
+import { useAuth } from '../context/AuthContext.tsx';
+import type { User } from '../Types.ts';
 
-// --- FUNCIONES DE VALIDACIÓN (Copiadas de tu validate.js) ---
-const regiones = {
+import { Form, Button } from 'react-bootstrap';
+
+
+//FUNCIONES DE VALIDACIÓN 
+const regiones: Record<string, string[]> = {
     'Metropolitana de Santiago': ['Santiago', 'San Bernardo', 'Maipú', 'Puente Alto'],
     'Valparaíso': ['Valparaíso', 'Viña del Mar', 'Quilpué'],
     'Concepción': ['Concepción', 'Hualpen', 'Talcahuano', 'Tomé']
@@ -64,6 +66,7 @@ const RegisterPage = () => {
     const navigate = useNavigate();
     const { register } = useAuth();
 
+    // LÓGICA DE ESTADO 
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -72,16 +75,14 @@ const RegisterPage = () => {
         firstName: '',
         lastName: '',
         birthDate: '',
-        role: 'Cliente', // El rol se asigna por defecto y no se puede cambiar
+        role: 'Cliente',
         region: '',
         comuna: '',
         address: ''
     });
-
     const [errors, setErrors] = useState<Partial<typeof formData>>({});
     const [comunas, setComunas] = useState<string[]>([]);
 
-    // Efecto para actualizar comunas
     useEffect(() => {
         if (formData.region) {
             setComunas(regiones[formData.region as keyof typeof regiones] || []);
@@ -90,52 +91,43 @@ const RegisterPage = () => {
         }
     }, [formData.region]);
 
-    // Manejador de cambios genérico
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value
         });
     };
 
-    // --- LÓGICA DE VALIDACIÓN CORREGIDA ---
+    // --- LÓGICA DE VALIDACIÓN
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setErrors({});
         let ok = true;
         const newErrors: Partial<typeof formData> = {};
 
-        // 1. Validar RUN
         if (!validarRUN(formData.run)) {
             newErrors.run = 'RUN inválido (sin puntos ni guion, ej: 19011022K)'; ok = false;
         }
-        // 2. Validar Nombres
         if (!formData.firstName.trim() || formData.firstName.length > 50 || !soloLetras(formData.firstName)) {
             newErrors.firstName = 'Nombre inválido (requerido, máx 50, solo letras)'; ok = false;
         }
-        // 3. Validar Apellidos
         if (!formData.lastName.trim() || formData.lastName.length > 100 || !soloLetras(formData.lastName)) {
             newErrors.lastName = 'Apellido inválido (requerido, máx 100, solo letras)'; ok = false;
         }
-        // 4. Validar Email
         if (!emailValido(formData.email)) {
-            newErrors.email = 'Correo inválido (solo @duoc.cl, @profesor.duoc.cl o @gmail.com)'; ok = false;
+            newErrors.email = 'Correo inválido (solo @duoc.cl, @profesor\.duoc\.cl o @gmail\.com)'; ok = false;
         }
-        // 5. Validar Contraseñas
         if (formData.password.length < 4 || formData.password.length > 10) {
             newErrors.password = 'La contraseña debe tener entre 4 y 10 caracteres'; ok = false;
         }
         if (formData.password !== formData.confirmPassword) {
             newErrors.confirmPassword = 'Las contraseñas no coinciden'; ok = false;
         }
-        // 6. Validar Selects y Dirección
-        // ¡YA NO VALIDAMOS 'role'!
         if (!formData.region) { newErrors.region = 'Selecciona región'; ok = false; }
         if (!formData.comuna) { newErrors.comuna = 'Selecciona comuna'; ok = false; }
         if (!formData.address.trim() || formData.address.length > 300) {
             newErrors.address = 'Dirección requerida (máx 300)'; ok = false;
         }
-        // 7. Validar Fecha de Nacimiento
         const fechaValida = validarFechaNacimiento(formData.birthDate);
         if (!fechaValida.ok) {
             newErrors.birthDate = fechaValida.error; ok = false;
@@ -143,10 +135,9 @@ const RegisterPage = () => {
 
         if (!ok) {
             setErrors(newErrors);
-            return; // Detiene si hay errores
+            return;
         }
 
-        // --- SI TODO ESTÁ OK, REGISTRAMOS ---
         try {
             const newUser: User = {
                 run: formData.run.trim(),
@@ -154,17 +145,15 @@ const RegisterPage = () => {
                 lastName: formData.lastName.trim(),
                 email: formData.email.trim(),
                 password: formData.password,
-                role: formData.role, 
+                role: formData.role,
                 region: formData.region,
                 comuna: formData.comuna,
                 address: formData.address.trim(),
                 birthDate: formData.birthDate
             };
-
-            register(newUser); 
+            register(newUser);
             alert('Usuario creado con éxito ✅');
-            navigate('/'); 
-
+            navigate('/');
         } catch (error: any) {
             setErrors({ email: error.message });
         }
@@ -176,69 +165,189 @@ const RegisterPage = () => {
                 <h1>Registro</h1>
             </header>
             <div className="form-container">
-                <form id="form-register" onSubmit={handleSubmit}>
+                <Form id="form-register" onSubmit={handleSubmit} noValidate>
 
                     <fieldset>
                         <legend>Datos de acceso</legend>
-                        <label>Correo
-                            <input name="email" type="email" required placeholder="tucorreo@duoc.cl" value={formData.email} onChange={handleChange} />
-                            {errors.email && <small className="error">{errors.email}</small>}
-                        </label>
-                        <label>Contraseña
-                            <input name="password" type="password" minLength={4} maxLength={10} required value={formData.password} onChange={handleChange} />
-                            {errors.password && <small className="error">{errors.password}</small>}
-                        </label>
-                        <label>Confirmar Contraseña
-                            <input name="confirmPassword" type="password" required value={formData.confirmPassword} onChange={handleChange} />
-                            {errors.confirmPassword && <small className="error">{errors.confirmPassword}</small>}
-                        </label>
+                        <Form.Group className="mb-3" controlId="regEmail">
+                            <Form.Label>Correo</Form.Label>
+                            <Form.Control
+                                type="email"
+                                name="email"
+                                required
+                                placeholder="tucorreo@duoc.cl"
+                                value={formData.email}
+                                onChange={handleChange}
+                                isInvalid={!!errors.email}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                                {errors.email}
+                            </Form.Control.Feedback>
+                        </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="regPassword">
+                            <Form.Label>Contraseña</Form.Label>
+                            <Form.Control
+                                type="password"
+                                name="password"
+                                minLength={4}
+                                maxLength={10}
+                                required
+                                value={formData.password}
+                                onChange={handleChange}
+                                isInvalid={!!errors.password}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                                {errors.password}
+                            </Form.Control.Feedback>
+                        </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="regConfirmPassword">
+                            <Form.Label>Confirmar Contraseña</Form.Label>
+                            <Form.Control
+                                type="password"
+                                name="confirmPassword"
+                                required
+                                value={formData.confirmPassword}
+                                onChange={handleChange}
+                                isInvalid={!!errors.confirmPassword}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                                {errors.confirmPassword}
+                            </Form.Control.Feedback>
+                        </Form.Group>
                     </fieldset>
 
                     <fieldset>
                         <legend>Perfil</legend>
-                        <label>RUN (sin puntos ni guion)
-                            <input name="run" type="text" minLength={7} maxLength={9} required placeholder="19011022K" value={formData.run} onChange={handleChange} />
-                            {errors.run && <small className="error">{errors.run}</small>}
-                        </label>
-                        <label>Nombres
-                            <input name="firstName" type="text" maxLength={50} required value={formData.firstName} onChange={handleChange} />
-                            {errors.firstName && <small className="error">{errors.firstName}</small>}
-                        </label>
-                        <label>Apellidos
-                            <input name="lastName" type="text" maxLength={100} required value={formData.lastName} onChange={handleChange} />
-                            {errors.lastName && <small className="error">{errors.lastName}</small>}
-                        </label>
-                        <label>Fecha nacimiento
-                            <input name="birthDate" type="date" required value={formData.birthDate} onChange={handleChange} />
-                            {errors.birthDate && <small className="error">{errors.birthDate}</small>}
-                        </label>
 
-                        <label>Región
-                            <select name="region" id="region-select" required value={formData.region} onChange={handleChange}>
+                        <Form.Group className="mb-3" controlId="regRun">
+                            <Form.Label>RUN (sin puntos ni guion)</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="run"
+                                minLength={7}
+                                maxLength={9}
+                                required
+                                placeholder="19011022K"
+                                value={formData.run}
+                                onChange={handleChange}
+                                isInvalid={!!errors.run}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                                {errors.run}
+                            </Form.Control.Feedback>
+                        </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="regFirstName">
+                            <Form.Label>Nombres</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="firstName"
+                                maxLength={50}
+                                required
+                                value={formData.firstName}
+                                onChange={handleChange}
+                                isInvalid={!!errors.firstName}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                                {errors.firstName}
+                            </Form.Control.Feedback>
+                        </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="regLastName">
+                            <Form.Label>Apellidos</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="lastName"
+                                maxLength={100}
+                                required
+                                value={formData.lastName}
+                                onChange={handleChange}
+                                isInvalid={!!errors.lastName}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                                {errors.lastName}
+                            </Form.Control.Feedback>
+                        </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="regBirthDate">
+                            <Form.Label>Fecha nacimiento</Form.Label>
+                            <Form.Control
+                                type="date"
+                                name="birthDate"
+                                required
+                                value={formData.birthDate}
+                                onChange={handleChange}
+                                isInvalid={!!errors.birthDate}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                                {errors.birthDate}
+                            </Form.Control.Feedback>
+                        </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="regRegion">
+                            <Form.Label>Región</Form.Label>
+                            <Form.Select
+                                name="region"
+                                id="region-select"
+                                required
+                                value={formData.region}
+                                onChange={handleChange}
+                                isInvalid={!!errors.region}
+                            >
                                 <option value="">Selecciona…</option>
                                 {regionNombres.map(region => (
                                     <option key={region} value={region}>{region}</option>
                                 ))}
-                            </select>
-                            {errors.region && <small className="error">{errors.region}</small>}
-                        </label>
-                        <label>Comuna
-                            <select name="comuna" id="comuna-select" required value={formData.comuna} onChange={handleChange} disabled={comunas.length === 0}>
+                            </Form.Select>
+                            <Form.Control.Feedback type="invalid">
+                                {errors.region}
+                            </Form.Control.Feedback>
+                        </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="regComuna">
+                            <Form.Label>Comuna</Form.Label>
+                            <Form.Select
+                                name="comuna"
+                                id="comuna-select"
+                                required
+                                value={formData.comuna}
+                                onChange={handleChange}
+                                isInvalid={!!errors.comuna}
+                                disabled={comunas.length === 0}
+                            >
                                 <option value="">Selecciona…</option>
                                 {comunas.map(comuna => (
                                     <option key={comuna} value={comuna}>{comuna}</option>
                                 ))}
-                            </select>
-                            {errors.comuna && <small className="error">{errors.comuna}</small>}
-                        </label>
-                        <label>Dirección
-                            <input name="address" type="text" maxLength={300} required value={formData.address} onChange={handleChange} />
-                            {errors.address && <small className="error">{errors.address}</small>}
-                        </label>
+                            </Form.Select>
+                            <Form.Control.Feedback type="invalid">
+                                {errors.comuna}
+                            </Form.Control.Feedback>
+                        </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="regAddress">
+                            <Form.Label>Dirección</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="address"
+                                maxLength={300}
+                                required
+                                value={formData.address}
+                                onChange={handleChange}
+                                isInvalid={!!errors.address}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                                {errors.address}
+                            </Form.Control.Feedback>
+                        </Form.Group>
                     </fieldset>
 
-                    <button className="btn" type="submit">Crear cuenta</button>
-                </form>
+                    <Button className="btn" type="submit">
+                        Crear cuenta
+                    </Button>
+                </Form>
             </div>
         </main>
     );

@@ -17,7 +17,7 @@ const AdminUsersPage = () => {
         loadUsers();
     }, []); 
 
-    // --- Lógica para los botones de Acción ---
+    //Lógica para los botones de Accion
 
     const handleEdit = (index: number) => {
         localStorage.setItem('editUserIndex', index.toString());

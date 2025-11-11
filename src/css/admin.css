@@ -239,7 +239,6 @@ textarea {
 
 
 
-
 /* Estilos para la nueva sección de mensajes */
 .recent-messages {
     margin-top: 2rem;
@@ -297,4 +296,97 @@ textarea {
 
 .btn-eliminar:hover {
     background-color: #c9302c;
+}
+
+
+/*para la NUEVA página de Pedidos (AdminOrdersPage) --- */
+
+.order-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.order-card {
+    background-color: #212121; 
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: #eee;
+}
+
+.order-card header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid #444;
+    padding: 1rem;
+    gap: 1rem;
+}
+
+.order-card header div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.order-card header small {
+    color: #999;
+    font-size: 0.85rem;
+}
+
+.order-card .order-total {
+    font-size: 1.5rem;
+    color: #00ff99; 
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.order-card-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr; 
+    gap: 1.5rem;
+    padding: 1rem;
+}
+
+.order-card-body h4 {
+    color: #00ff99;
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid #444;
+    padding-bottom: 0.5rem;
+}
+
+.order-card-body p {
+    margin: 0.3rem 0;
+    font-size: 0.9rem;
+    color: #ccc;
+}
+
+.order-card-body .order-items ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.order-card-body .order-items li {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+}
+
+.order-card footer {
+    border-top: 1px solid #444;
+    padding: 1rem;
+    text-align: right;
+}
+
+
+@media (max-width: 768px) {
+    .order-card-body {
+        grid-template-columns: 1fr; 
+    }
 }
