@@ -1,6 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
-import type { Product, User } from '../../Types'; 
+// Importamos el nuevo tipo de mensaje
+import type { Product, User, ContactoMensaje } from '../../Types';
 
 
 interface HistoryItem {
@@ -17,6 +17,10 @@ const DashboardPage = () => {
     const [orderCount, setOrderCount] = useState(0);
     const [recentOrders, setRecentOrders] = useState<HistoryItem[]>([]);
 
+    // --- INICIO ADICIÓN DE MENSAJES ---
+    const [mensajes, setMensajes] = useState<ContactoMensaje[]>([]);
+    // --- FIN ADICIÓN DE MENSAJES ---
+
     useEffect(() => {
         const products: Product[] = JSON.parse(localStorage.getItem('productos') || '[]');
         setProductCount(products.length);
@@ -26,10 +30,33 @@ const DashboardPage = () => {
 
         const history: HistoryItem[] = JSON.parse(localStorage.getItem('cartHistory') || '[]');
         setOrderCount(history.length);
- 
         setRecentOrders(history.slice(-10).reverse());
 
-    }, []); 
+        // --- INICIO ADICIÓN DE MENSAJES ---
+        // Cargar mensajes de contacto desde localStorage
+        const mensajesGuardados: ContactoMensaje[] = JSON.parse(
+            localStorage.getItem('mensajesContacto') || '[]'
+        );
+        setMensajes(mensajesGuardados);
+        // --- FIN ADICIÓN DE MENSAJES ---
+
+    }, []);
+
+    // --- INICIO ADICIÓN DE MENSAJES ---
+    // Función para eliminar un mensaje
+    const handleEliminarMensaje = (id: string) => {
+        if (!confirm('¿Seguro que quieres eliminar este mensaje?')) {
+            return;
+        }
+        // 1. Filtrar el mensaje fuera del estado
+        const mensajesActualizados = mensajes.filter(m => m.id !== id);
+        setMensajes(mensajesActualizados);
+
+        // 2. Actualizar localStorage
+        localStorage.setItem('mensajesContacto', JSON.stringify(mensajesActualizados));
+    };
+    // --- FIN ADICIÓN DE MENSAJES ---
+
 
     return (
         <div>
@@ -79,6 +106,39 @@ const DashboardPage = () => {
                     </tbody>
                 </table>
             </section>
+
+            {/* --- INICIO DE LA SECCIÓN DE MENSAJES --- */}
+            <section className="recent-messages">
+                <h2>Mensajes de Contacto / Reclamos</h2>
+                <div className="message-list">
+                    {mensajes.length === 0 ? (
+                        <p>No hay mensajes nuevos.</p>
+                    ) : (
+                        mensajes.map((msg) => (
+                            <article key={msg.id} className="message-card">
+                                <header>
+                                    <div>
+                                        <strong>De: {msg.name}</strong>
+                                        <small> ({msg.email})</small>
+                                    </div>
+                                    <small>Recibido: {msg.timestamp}</small>
+                                </header>
+                                <p>{msg.comment}</p>
+                                <footer>
+                                    <button
+                                        className="btn-eliminar"
+                                        onClick={() => handleEliminarMensaje(msg.id)}
+                                    >
+                                        Eliminar
+                                    </button>
+                                </footer>
+                            </article>
+                        ))
+                    )}
+                </div>
+            </section>
+            {/* --- FIN DE LA SECCIÓN DE MENSAJES --- */}
+
         </div>
     );
 }

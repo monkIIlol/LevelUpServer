@@ -1,10 +1,10 @@
-
+// En src/pages/RegisterPage.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import type { User } from '../Types';
 
-// --- FUNCIONES DE VALIDACIÓN ---
+// --- FUNCIONES DE VALIDACIÓN (Copiadas de tu validate.js) ---
 const regiones = {
     'Metropolitana de Santiago': ['Santiago', 'San Bernardo', 'Maipú', 'Puente Alto'],
     'Valparaíso': ['Valparaíso', 'Viña del Mar', 'Quilpué'],
@@ -29,7 +29,6 @@ const validarRUN = (run: string): boolean => {
 }
 
 const soloLetras = (v: string): boolean => /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(v);
-
 
 const emailValido = (email: string): boolean => {
     if (!email.trim() || email.length > 100) return false;
@@ -73,7 +72,7 @@ const RegisterPage = () => {
         firstName: '',
         lastName: '',
         birthDate: '',
-        role: 'Cliente',
+        role: 'Cliente', // El rol se asigna por defecto y no se puede cambiar
         region: '',
         comuna: '',
         address: ''
@@ -82,6 +81,7 @@ const RegisterPage = () => {
     const [errors, setErrors] = useState<Partial<typeof formData>>({});
     const [comunas, setComunas] = useState<string[]>([]);
 
+    // Efecto para actualizar comunas
     useEffect(() => {
         if (formData.region) {
             setComunas(regiones[formData.region as keyof typeof regiones] || []);
@@ -90,6 +90,7 @@ const RegisterPage = () => {
         }
     }, [formData.region]);
 
+    // Manejador de cambios genérico
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({
             ...formData,
@@ -97,7 +98,7 @@ const RegisterPage = () => {
         });
     };
 
-    // --- LÓGICA DE VALIDACIÓN COMPLETA  ---
+    // --- LÓGICA DE VALIDACIÓN CORREGIDA ---
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setErrors({});
@@ -128,7 +129,7 @@ const RegisterPage = () => {
             newErrors.confirmPassword = 'Las contraseñas no coinciden'; ok = false;
         }
         // 6. Validar Selects y Dirección
-        if (!formData.role) { newErrors.role = 'Selecciona un perfil'; ok = false; }
+        // ¡YA NO VALIDAMOS 'role'!
         if (!formData.region) { newErrors.region = 'Selecciona región'; ok = false; }
         if (!formData.comuna) { newErrors.comuna = 'Selecciona comuna'; ok = false; }
         if (!formData.address.trim() || formData.address.length > 300) {
@@ -142,9 +143,10 @@ const RegisterPage = () => {
 
         if (!ok) {
             setErrors(newErrors);
-            return; 
+            return; // Detiene si hay errores
         }
 
+        // --- SI TODO ESTÁ OK, REGISTRAMOS ---
         try {
             const newUser: User = {
                 run: formData.run.trim(),
@@ -152,7 +154,7 @@ const RegisterPage = () => {
                 lastName: formData.lastName.trim(),
                 email: formData.email.trim(),
                 password: formData.password,
-                role: formData.role,
+                role: formData.role, 
                 region: formData.region,
                 comuna: formData.comuna,
                 address: formData.address.trim(),
@@ -168,7 +170,6 @@ const RegisterPage = () => {
         }
     };
 
-    // --- HTML  ---
     return (
         <main id="main-content">
             <header className="page-header">
@@ -211,14 +212,7 @@ const RegisterPage = () => {
                             <input name="birthDate" type="date" required value={formData.birthDate} onChange={handleChange} />
                             {errors.birthDate && <small className="error">{errors.birthDate}</small>}
                         </label>
-                        <label>Tipo de usuario
-                            <select name="role" required value={formData.role} onChange={handleChange}>
-                                <option value="Cliente">Cliente</option>
-                                <option value="Vendedor">Vendedor</option>
-                                <option value="Administrador">Administrador</option>
-                            </select>
-                            {errors.role && <small className="error">{errors.role}</small>}
-                        </label>
+
                         <label>Región
                             <select name="region" id="region-select" required value={formData.region} onChange={handleChange}>
                                 <option value="">Selecciona…</option>

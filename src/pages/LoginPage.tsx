@@ -1,22 +1,22 @@
-
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'; 
-import type { User } from '../Types'; 
+import { useNavigate, Link } from 'react-router-dom'; // 1. Importé Link
+import { useAuth } from '../context/AuthContext';
+import type { User } from '../Types';
+
 const LoginPage = () => {
 
     const navigate = useNavigate();
-    const { login } = useAuth(); 
+    const { login } = useAuth();
 
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState(''); 
+    const [error, setError] = useState('');
 
     // --- LÓGICA DEL FORMULARIO ---
     const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault(); 
-        setError(''); 
+        e.preventDefault();
+        setError('');
 
         const usuarios: User[] = JSON.parse(localStorage.getItem('usuarios') || '[]');
         const usuarioEncontrado = usuarios.find(u => u.email === email);
@@ -25,8 +25,8 @@ const LoginPage = () => {
         if (usuarioEncontrado && usuarioEncontrado.password === password) {
             // SI el usuario existe Y la contraseña es correcta
             alert('Inicio de sesión exitoso ✅');
-            login(usuarioEncontrado); 
-            navigate('/'); 
+            login(usuarioEncontrado);
+            navigate('/');
 
         } else if (email === "admin@levelup.cl" && password === "admin123") {
             // Caso especial para el admin
@@ -35,7 +35,7 @@ const LoginPage = () => {
                 run: '0-0', lastName: 'Admin', region: '', comuna: '', address: '', birthDate: null
             };
             login(adminUser);
-            navigate('/admin'); 
+            navigate('/admin');
 
         } else {
             setError('Correo o contraseña incorrectos');
@@ -49,7 +49,7 @@ const LoginPage = () => {
             </header>
 
             <div className="form-container">
-                
+
                 <form id="form-login" onSubmit={handleSubmit}>
                     <label>Correo
                         <input
@@ -57,8 +57,8 @@ const LoginPage = () => {
                             type="email"
                             maxLength={100}
                             required
-                            value={email} 
-                            onChange={e => setEmail(e.target.value)} 
+                            value={email}
+                            onChange={e => setEmail(e.target.value)}
                         />
                     </label>
                     <label>Contraseña
@@ -68,8 +68,8 @@ const LoginPage = () => {
                             minLength={4}
                             maxLength={10}
                             required
-                            value={password} 
-                            onChange={e => setPassword(e.target.value)} 
+                            value={password}
+                            onChange={e => setPassword(e.target.value)}
                         />
                     </label>
 
@@ -77,6 +77,16 @@ const LoginPage = () => {
                     {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
 
                     <button className="btn" type="submit">Entrar</button>
+
+                    {/* --- 2. AQUÍ ESTÁ EL ENLACE A REGISTRO --- */}
+                    <p style={{ textAlign: 'center', marginTop: '1rem', color: '#ccc' }}>
+                        ¿No tienes cuenta?{' '}
+                        <Link to="/register" style={{ color: '#00e676', fontWeight: 'bold', textDecoration: 'none' }}>
+                            Regístrate
+                        </Link>
+                    </p>
+                    {/* --- FIN DE LA ADICIÓN --- */}
+
                 </form>
             </div>
         </main>

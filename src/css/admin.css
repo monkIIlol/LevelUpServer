@@ -1,6 +1,3 @@
-/* admin.css - VERSIÓN FINAL CORREGIDA */
-
-/* Reset básico y tipografía */
 .admin {
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -9,7 +6,6 @@
 
     display: grid;
     grid-template-columns: 220px 1fr;
-    /* Columna fija para sidebar, el resto para el contenido */
     min-height: 100vh;
 }
 
@@ -20,7 +16,6 @@
     border-right: 2px solid #00ff99;
     padding: 2rem 1rem;
     box-sizing: border-box;
-    /* La altura se controla por el grid, no necesitamos 'height: 100vh' aquí */
 }
 
 .sidebar h2 {
@@ -41,7 +36,6 @@
 
 .sidebar nav a:hover,
 .sidebar nav a.active {
-    /* 'active' es la clase que pone React Router */
     background: #00ff99;
     color: #121212;
 }
@@ -53,9 +47,8 @@
     box-sizing: border-box;
 }
 
-/* 4. COMPONENTES (Estilos que ya tenías) */
+/* 4. COMPONENTES  */
 
-/* Dashboard cards */
 .stats {
     display: flex;
     gap: 1.5rem;
@@ -142,7 +135,7 @@ form label {
     display: block;
     margin-bottom: 1rem;
     color: #fff;
-    /* <-- CORRECCIÓN 2: Devolvemos el color a las etiquetas */
+
 }
 
 form input,
@@ -176,7 +169,6 @@ form textarea:focus {
 @media(max-width: 768px) {
     body.admin {
         grid-template-columns: 1fr;
-        /* El sidebar y el main se ponen uno encima del otro */
     }
 
     .sidebar {
@@ -243,4 +235,66 @@ textarea {
 .orders-table td[colspan="4"] {
     text-align: center;
     color: #aaa;
+}
+
+
+
+
+/* Estilos para la nueva sección de mensajes */
+.recent-messages {
+    margin-top: 2rem;
+}
+
+.message-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.message-card {
+    background-color: #212121; 
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 1rem;
+    color: #eee;
+}
+
+.message-card header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #444;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap; 
+    gap: 0.5rem;
+}
+
+.message-card header small {
+    color: #999;
+}
+
+.message-card p {
+    margin: 0;
+    line-height: 1.6;
+    white-space: pre-wrap; 
+}
+
+.message-card footer {
+    margin-top: 1rem;
+    text-align: right;
+}
+
+.btn-eliminar {
+    background-color: #d9534f; 
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-eliminar:hover {
+    background-color: #c9302c;
 }

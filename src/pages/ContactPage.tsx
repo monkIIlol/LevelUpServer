@@ -1,5 +1,5 @@
-
 import React, { useState } from 'react';
+import type { ContactoMensaje } from '../Types'; // Importamos el nuevo tipo
 
 //Validacion email
 const emailValido = (email: string): boolean => {
@@ -10,7 +10,7 @@ const emailValido = (email: string): boolean => {
 const ContactPage = () => {
     const [formData, setFormData] = useState({ name: '', email: '', comment: '' });
     const [errors, setErrors] = useState<Partial<typeof formData>>({});
-    const [success, setSuccess] = useState(false); 
+    const [success, setSuccess] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setFormData({
@@ -44,7 +44,30 @@ const ContactPage = () => {
             return;
         }
 
-        // Si todo está ok
+        // --- INICIO DE LA ADICIÓN (LÓGICA DE GUARDADO) ---
+
+        // 1. Crear el nuevo mensaje
+        const nuevoMensaje: ContactoMensaje = {
+            id: new Date().toISOString(),
+            name: formData.name,
+            email: formData.email,
+            comment: formData.comment,
+            timestamp: new Date().toLocaleString('es-CL')
+        };
+
+        // 2. Obtener mensajes existentes de localStorage
+        const mensajesGuardados: ContactoMensaje[] = JSON.parse(
+            localStorage.getItem('mensajesContacto') || '[]'
+        );
+
+        // 3. Agregar el nuevo mensaje (al principio) y guardar
+        const mensajesActualizados = [nuevoMensaje, ...mensajesGuardados];
+        localStorage.setItem('mensajesContacto', JSON.stringify(mensajesActualizados));
+
+        // --- FIN DE LA ADICIÓN ---
+
+
+        // Si todo está ok (esto ya lo tenías)
         alert('Mensaje enviado ✅');
         setSuccess(true);
         setFormData({ name: '', email: '', comment: '' });
