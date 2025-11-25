@@ -47,7 +47,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       newCart = [...cartItems, newItem];
     }
     updateCart(newCart);
-    alert(`Añadido: ${productToAdd.name}`);
+    //alert(`Añadido: ${productToAdd.name}`);
   };
 
   

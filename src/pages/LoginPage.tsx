@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'; 
+import { useAuth } from '../context/AuthContext';
 import type { User } from '../Types';
 import { Form, Button, Alert } from 'react-bootstrap';
 
@@ -16,20 +16,21 @@ const LoginPage = () => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
-        const usuarios: User[] = JSON.parse(localStorage.getItem('usuarios') || '[]');
-        const usuarioEncontrado = usuarios.find(u => u.email === email);
 
-        if (usuarioEncontrado && usuarioEncontrado.password === password) {
-            alert('Inicio de sesión exitoso ✅');
+        // Buscamos en la lista general de usuarios
+        const usuarios: User[] = JSON.parse(localStorage.getItem('usuarios') || '[]');
+        const usuarioEncontrado = usuarios.find(u => u.email === email && u.password === password);
+
+        if (usuarioEncontrado) {
+            alert(`Bienvenido, ${usuarioEncontrado.firstName} ✅`);
             login(usuarioEncontrado);
-            navigate('/');
-        } else if (email === "admin@levelup.cl" && password === "admin123") {
-            const adminUser: User = {
-                firstName: "Admin", email: "admin@levelup.cl", role: "Administrador",
-                run: '0-0', lastName: 'Admin', region: '', comuna: '', address: '', birthDate: null
-            };
-            login(adminUser);
-            navigate('/admin');
+
+            // Redirección inteligente según el rol
+            if (usuarioEncontrado.role === 'Administrador') {
+                navigate('/admin');
+            } else {
+                navigate('/');
+            }
         } else {
             setError('Correo o contraseña incorrectos');
         }
@@ -43,7 +44,7 @@ const LoginPage = () => {
 
             <div className="form-container">
                 <Form id="form-login" onSubmit={handleSubmit} noValidate>
-                    
+
                     <Form.Group className="mb-3" controlId="loginEmail">
                         <Form.Label>Correo</Form.Label>
                         <Form.Control

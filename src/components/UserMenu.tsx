@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext'; 
+import { useAuth } from '../context/AuthContext';
 
 const UserMenu = () => {
     const { currentUser, logout } = useAuth();
@@ -24,7 +24,7 @@ const UserMenu = () => {
         <div className="user-menu">
             <button
                 className="user-menu-trigger"
-                onClick={() => setIsOpen(!isOpen)} // Alterna el estado del menú
+                onClick={() => setIsOpen(!isOpen)} 
             >
                 {userIconSVG}
                 {userName} &#9662;
@@ -32,6 +32,8 @@ const UserMenu = () => {
 
             {isOpen && (
                 <div id="user-dropdown" className="dropdown-content show">
+                    <a href="/perfil" style={{ borderBottom: '1px solid #333' }}>Mi Perfil</a>
+
                     <a href="#" id="logout-button" onClick={logout}>
                         Cerrar Sesión
                     </a>

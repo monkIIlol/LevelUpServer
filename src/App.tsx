@@ -15,6 +15,7 @@ import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import BlogPage from './pages/BlogPage';
 import BlogDetailPage from './pages/BlogDetailPage';
+import ProfilePage from './pages/ProfilePage';
 // --- COMPONENTES DEL ADMIN 
 import AdminLayout from './pages/admin/AdminLayout';
 import DashboardPage from './pages/admin/DashboardPage';
@@ -56,6 +57,7 @@ function App() {
         <Route path="checkout" element={<CheckoutPage />} />
         <Route path="checkout-success" element={<CheckoutSuccessPage />} />
         <Route path="checkout-error" element={<CheckoutErrorPage />} />
+        <Route path="perfil" element={<ProfilePage />} />
       </Route>
 
       {/*RUTAS DEL PANEL DE ADMINISTRACIÓN*/}

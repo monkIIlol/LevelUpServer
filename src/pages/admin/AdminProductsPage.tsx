@@ -25,7 +25,7 @@ const AdminProductsPage = () => {
         loadProducts();
     }, []); 
 
-    // --- Lógica para los botones de Acción ---
+    //Lógica para los botones de Acción 
 
     const handleEdit = (index: number) => {
 

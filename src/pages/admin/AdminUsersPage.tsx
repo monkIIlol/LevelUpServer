@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { User } from '../../Types'; 
+import type { User } from '../../Types';
 
 const AdminUsersPage = () => {
     const navigate = useNavigate();
@@ -15,21 +15,36 @@ const AdminUsersPage = () => {
 
     useEffect(() => {
         loadUsers();
-    }, []); 
+    }, []);
 
     //Lógica para los botones de Accion
-
     const handleEdit = (index: number) => {
         localStorage.setItem('editUserIndex', index.toString());
         navigate('/admin/user-new');
     }
 
     const handleDelete = (index: number) => {
-        if (confirm('¿Seguro que quieres eliminar este usuario?')) {
+        const userToDelete = users[index]; // Obtenemos el usuario a borrar
+
+        // 1. Cargar historial de pedidos detallados
+        const pedidos: any[] = JSON.parse(localStorage.getItem('pedidosDetallados') || '[]');
+
+        // 2. Verificar si el usuario tiene pedidos
+        // Nota: Asumimos que el enlace es el email. Si usas RUN, cambia a p.user.run
+        const tienePedidos = pedidos.some(p => p.user.email === userToDelete.email);
+
+        if (tienePedidos) {
+            alert(`❌ No puedes eliminar al usuario "${userToDelete.email}" porque tiene pedidos registrados. Elimina sus pedidos primero si es estrictamente necesario.`);
+            return;
+        }
+
+        // 3. Si no tiene pedidos, proceder con la confirmación normal
+        if (confirm(`¿Seguro que quieres eliminar a ${userToDelete.firstName}?`)) {
             let currentUsers = [...users];
             currentUsers.splice(index, 1);
             localStorage.setItem('usuarios', JSON.stringify(currentUsers));
             loadUsers();
+            alert('Usuario eliminado correctamente.');
         }
     }
 
