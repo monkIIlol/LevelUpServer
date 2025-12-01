@@ -11,11 +11,12 @@ export interface User {
     birthDate: string | null;
 }
 
+
 export interface AuthContextType {
     currentUser: User | null; 
-    login: (user: User) => void;   
+    login: (user: any) => Promise<boolean>;   
     logout: () => void;           
-    register: (user: User) => void; 
+    register: (user: User) => Promise<void>;  
 }
 
 export interface Product {
@@ -24,7 +25,8 @@ export interface Product {
   name: string;
   price: number;
   img: string;
-  desc: string;
+  description?: string; 
+  desc?: string;
   details: string[];
   stock?: number; 
 }
@@ -39,7 +41,7 @@ export interface CartItem {
 export interface CartContextType {
   cartItems: CartItem[];
   totalPrice: number; 
-  addToCart: (code: string) => void;
+  addToCart: (product: Product) => void;
   increaseQty: (code: string) => void; 
   decreaseQty: (code: string) => void; 
   removeFromCart: (code: string) => void; 

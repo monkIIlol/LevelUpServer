@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { categories } from '../data/products'; 
 import ProductCard from '../components/ProductCard';
 import type { Product } from '../Types';
+import { ProductService } from '../services/ProductService';
 
 const ProductsPage = () => {
 
@@ -13,9 +14,21 @@ const ProductsPage = () => {
     const [selectedCategory, setSelectedCategory] = useState('');
 
     useEffect(() => {
-        const productsData: Product[] = JSON.parse(localStorage.getItem('productos') || '[]');
-        setAllProducts(productsData); 
-        setFilteredProducts(productsData); 
+        const cargarProductos = async () => {
+            // Llamamos a Java
+            const data = await ProductService.listar();
+            
+            if (data.length > 0) {
+                setAllProducts(data);
+                setFilteredProducts(data);
+            } else {
+                // (Opcional) Si la BD está vacía, podrías dejar el localStorage como respaldo
+                // o mostrar un mensaje de "No hay productos".
+                console.log("No se encontraron productos en el servidor.");
+            }
+        };
+
+        cargarProductos();
     }, []);
 
     
@@ -30,7 +43,7 @@ const ProductsPage = () => {
             const lowerQuery = searchQuery.toLowerCase();
             tempProducts = tempProducts.filter(p =>
                 p.name.toLowerCase().includes(lowerQuery) ||
-                p.desc.toLowerCase().includes(lowerQuery)
+                p.desc?.toLowerCase().includes(lowerQuery)
             );
         }
 

@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import type { User, OrderDetails } from '../Types';
+import { OrderService } from '../services/OrderService';
 
 // Lógica de Regiones y Comunas
 const regiones: Record<string, string[]> = {
@@ -61,7 +62,7 @@ const CheckoutPage: React.FC = () => {
         });
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => { 
         e.preventDefault();
         setErrors({});
         let ok = true;
@@ -81,36 +82,31 @@ const CheckoutPage: React.FC = () => {
         }
 
         try {
-            const orderDetails: OrderDetails = {
-                id: `ORDER-${new Date().toISOString()}`,
-                timestamp: new Date().toLocaleString('es-CL'),
-                user: formData, 
-                items: cartItems,
-                total: totalPrice
-            };
+            // Recuperamos el token del usuario logueado
+            const token = localStorage.getItem('token');
 
-            let history: any[] = JSON.parse(localStorage.getItem('cartHistory') || '[]');
-            history.push({
-                user: `${formData.firstName} ${formData.lastName}`,
-                product: `${cartItems.length} items`,
-                code: orderDetails.id,
-                timestamp: new Date().toISOString()
-            });
-            localStorage.setItem('cartHistory', JSON.stringify(history));
+            if (!token) {
+                alert("Tu sesión ha expirado. Por favor inicia sesión nuevamente.");
+                navigate('/login');
+                return;
+            }
 
-            //GUARDAR PEDIDO ADMIN 
-            const pedidosGuardados: OrderDetails[] = JSON.parse(localStorage.getItem('pedidosDetallados') || '[]');
-            const pedidosActualizados = [orderDetails, ...pedidosGuardados];
-            localStorage.setItem('pedidosDetallados', JSON.stringify(pedidosActualizados));
+            // Llamamos al servicio (Aquí es donde se descuenta el stock en la BD)
+            await OrderService.crearPedido(cartItems, token);
 
-
-            localStorage.setItem('lastSuccessfulOrder', JSON.stringify(orderDetails));
-
-            clearCart();
+            // Si todo salió bien:
+            alert("¡Compra exitosa! 🎉");
+            
+            // Limpiamos el carrito local
+            clearCart(); 
+            
+            // Redirigimos al éxito
             navigate('/checkout-success');
 
-        } catch (error) {
-            console.error("Error al procesar el pago: ", error);
+        } catch (error: any) {
+            console.error("Fallo la compra:", error);
+            // Mostramos el error que viene de Java (ej: "Sin stock suficiente")
+            alert("Error al comprar: " + error.message);
             navigate('/checkout-error');
         }
     };

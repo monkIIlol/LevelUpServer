@@ -21,23 +21,32 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   // --- LÓGICA DEL CARRITO ---
-  const addToCart = (code: string) => {
-    const allProducts: Product[] = JSON.parse(localStorage.getItem('productos') || '[]');
-    const productToAdd = allProducts.find(p => p.code === code);
+  // En src/context/CartContext.tsx
 
-    if (!productToAdd) {
-      console.error("Error: Producto no encontrado. No se pudo añadir al carrito.");
-      return;
+  // AHORA RECIBE EL OBJETO PRODUCTO COMPLETO
+  const addToCart = (productToAdd: Product) => {
+    
+    // 1. Validar Stock (Usamos el stock que viene directo de la BD)
+    if (productToAdd.stock === 0) {
+        alert("Lo sentimos, este producto está agotado.");
+        return;
     }
 
-    const existingItem = cartItems.find(item => item.code === code);
+    const existingItem = cartItems.find(item => item.code === productToAdd.code);
     let newCart: CartItem[];
 
     if (existingItem) {
+      // Validar stock máximo
+      if (existingItem.qty + 1 > productToAdd.stock!) {
+          alert(`No puedes agregar más. Solo quedan ${productToAdd.stock} unidades.`);
+          return;
+      }
+
       newCart = cartItems.map(item =>
-        item.code === code ? { ...item, qty: item.qty + 1 } : item
+        item.code === productToAdd.code ? { ...item, qty: item.qty + 1 } : item
       );
     } else {
+      // Crear nuevo item usando los datos directos
       const newItem: CartItem = {
         code: productToAdd.code,
         name: productToAdd.name,
@@ -46,8 +55,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       };
       newCart = [...cartItems, newItem];
     }
+    
     updateCart(newCart);
-    //alert(`Añadido: ${productToAdd.name}`);
   };
 
   

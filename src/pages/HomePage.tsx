@@ -1,7 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import ProductCard from '../components/ProductCard';
 import type { Product } from '../Types';
+import { ProductService } from '../services/ProductService'; // Importamos el servicio
 
 const HomePage = () => {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
@@ -9,15 +9,28 @@ const HomePage = () => {
   const [topSalesProducts, setTopSalesProducts] = useState<Product[]>([]);
 
   useEffect(() => {
-    const productsData: Product[] = JSON.parse(localStorage.getItem('productos') || '[]');
-    setFeaturedProducts(productsData.slice(0, 3));
-    setOfferProducts(productsData.slice(3, 6));
-    setTopSalesProducts(productsData.slice(6, 9));
+    const fetchHomeData = async () => {
+        try {
+            // Pedimos los datos reales a Java
+            const data = await ProductService.listar();
+            
+            if (data.length > 0) {
+                // Repartimos los productos para que la Home se vea llena
+                setFeaturedProducts(data.slice(0, 3));
+                setOfferProducts(data.slice(3, 6));
+                setTopSalesProducts(data.slice(6, 9));
+            }
+        } catch (error) {
+            console.error("Error al cargar home:", error);
+        }
+    };
+
+    fetchHomeData();
   }, []);
 
   return (
     <main id="main-content">
-      {/* --- SECCIÓN HERO --- */}
+      {/* SECCIÓN HERO */}
       <section className="hero">
         <div className="hero-overlay">
           <h1>Sube de nivel tu setup</h1>
@@ -26,10 +39,9 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* --- SECCIÓN DESTACADOS --- */}
+      {/* SECCIÓN DESTACADOS */}
       <section className="featured">
         <h2> ¡Destacados! </h2>
-        {/* --- CORRECCIÓN AQUÍ --- */}
         <div id="featured-grid" className="grid"> 
           {featuredProducts.map(product => (
             <ProductCard key={product.code} product={product} />
@@ -37,7 +49,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* --- SECCIÓN OFERTAS --- */}
+      {/* SECCIÓN OFERTAS */}
       <div className="ofertas">
         <h2> ¡Ofertas del Mes! </h2>
         <div className="grid"> 
@@ -47,7 +59,7 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* --- SECCIÓN TOP VENTAS  --- */}
+      {/* SECCIÓN TOP VENTAS */}
       <section className="top-ventas">
         <h2> ¡Top Ventas! </h2>
         <div className="grid">
@@ -57,13 +69,13 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* --- SECCIÓN TIENDA --- */}
+      {/* SECCIÓN TIENDA */}
       <section className="store-location">
         <h2>📍 Nuestra Tienda Level‑Up Gamer</h2>
         <p>Visítanos en Concepción, Chile. ¡Tenemos todo para gamers!</p>
         <div className="map-container">
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d2203.7761997001007!2d-73.0623553839439!3d-36.79385884515205!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e1!3m2!1ses-419!2scl!4v1757800244202!5m2!1ses-419!2scl"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3192.981329775317!2d-73.0503099236279!3d-36.84303357223481!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9669b5d2b70b5555%3A0x6f634673624f603!2sConcepci%C3%B3n%2C%20B%C3%ADo%20B%C3%ADo!5e0!3m2!1ses!2scl!4v1701389000000!5m2!1ses!2scl"
             width="600" height="450" style={{ border: 0 }} 
             allowFullScreen
             loading="lazy"
@@ -72,7 +84,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* --- SECCIÓN MARCAS --- */}
+      {/* SECCIÓN MARCAS */}
       <section className="marcas">
         <h2> ¡Marcas Gamer!</h2>
         <div className="brands-grid">

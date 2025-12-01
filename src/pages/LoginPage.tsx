@@ -13,26 +13,29 @@ const LoginPage = () => {
     const [error, setError] = useState('');
 
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
 
-        // Buscamos en la lista general de usuarios
-        const usuarios: User[] = JSON.parse(localStorage.getItem('usuarios') || '[]');
-        const usuarioEncontrado = usuarios.find(u => u.email === email && u.password === password);
+        const loginData: any = {
+            email: email,
+            password: password
+        };
 
-        if (usuarioEncontrado) {
-            alert(`Bienvenido, ${usuarioEncontrado.firstName} ✅`);
-            login(usuarioEncontrado);
+        // 1. Intentamos loguear con el Backend
+        const exito = await login(loginData);
 
-            // Redirección inteligente según el rol
-            if (usuarioEncontrado.role === 'Administrador') {
-                navigate('/admin');
+        if (exito) {
+            // 2. RECUPERAMOS EL ROL:
+            // Como el AuthContext ya guardó al usuario en localStorage, lo leemos de ahí
+            const usuarioGuardado = JSON.parse(localStorage.getItem('currentUser') || '{}');
+
+            // 3. REDIRECCIÓN INTELIGENTE
+            if (usuarioGuardado.role === 'Administrador') {
+                navigate('/admin'); // Si es jefe, al panel
             } else {
-                navigate('/');
+                navigate('/');      // Si es cliente, a la tienda
             }
-        } else {
-            setError('Correo o contraseña incorrectos');
         }
     }
 
