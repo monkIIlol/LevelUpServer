@@ -1,60 +1,62 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { User } from '../../Types';
+import { UserService } from '../../services/UserService'; // Conexión a BD
 
 const AdminUsersPage = () => {
     const navigate = useNavigate();
-
     const [users, setUsers] = useState<User[]>([]);
 
-    const loadUsers = () => {
-        const usersData = JSON.parse(localStorage.getItem('usuarios') || '[]');
-        setUsers(usersData);
+    // Cargar usuarios desde la Base de Datos
+    const loadUsers = async () => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            const data = await UserService.listar(token);
+            setUsers(data);
+        }
     }
 
     useEffect(() => {
         loadUsers();
     }, []);
 
-    //Lógica para los botones de Accion
-    const handleEdit = (index: number) => {
-        localStorage.setItem('editUserIndex', index.toString());
+    // Lógica para Editar
+    const handleEdit = (user: User) => {
+        // Guardamos el RUN o Email para editar
+        localStorage.setItem('editUserRun', user.run);
         navigate('/admin/user-new');
     }
 
-    const handleDelete = (index: number) => {
-        const userToDelete = users[index]; // Obtenemos el usuario a borrar
-
-        // 1. Cargar historial de pedidos detallados
-        const pedidos: any[] = JSON.parse(localStorage.getItem('pedidosDetallados') || '[]');
-
-        // 2. Verificar si el usuario tiene pedidos
-        // Nota: Asumimos que el enlace es el email. Si usas RUN, cambia a p.user.run
-        const tienePedidos = pedidos.some(p => p.user.email === userToDelete.email);
-
-        if (tienePedidos) {
-            alert(`❌ No puedes eliminar al usuario "${userToDelete.email}" porque tiene pedidos registrados. Elimina sus pedidos primero si es estrictamente necesario.`);
+    // Lógica para Eliminar (Conectada a Java)
+    const handleDelete = async (run: string, email: string) => {
+        // 1. Confirmación visual
+        if (!confirm(`¿Seguro que quieres eliminar al usuario ${email}?`)) {
             return;
         }
 
-        // 3. Si no tiene pedidos, proceder con la confirmación normal
-        if (confirm(`¿Seguro que quieres eliminar a ${userToDelete.firstName}?`)) {
-            let currentUsers = [...users];
-            currentUsers.splice(index, 1);
-            localStorage.setItem('usuarios', JSON.stringify(currentUsers));
-            loadUsers();
-            alert('Usuario eliminado correctamente.');
+        const token = localStorage.getItem('token');
+        if (!token) return alert("No estás autorizado");
+
+        // 2. Intentar borrar en la Base de Datos
+        const exito = await UserService.eliminar(run, token);
+
+        if (exito) {
+            alert('Usuario eliminado correctamente de la Base de Datos.');
+            loadUsers(); // Recargar tabla
+        } else {
+            // Si falla, es probable que la BD (Foreign Key) lo haya bloqueado por tener pedidos
+            alert(`❌ No puedes eliminar al usuario "${email}" porque tiene pedidos registrados o ocurrió un error en el servidor.`);
         }
     }
 
     return (
-        <div>
-            <h1>Usuarios</h1>
-            <table className="admin-table">
+        <div style={{ padding: '2rem', color: 'white' }}>
+            <h1 style={{ color: '#39FF14' }}>Usuarios (Base de Datos)</h1>
+
+            <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
                 <thead>
-                    <tr>
-                        <th>RUN</th>
+                    <tr style={{ background: '#222', textAlign: 'left' }}>
+                        <th style={{ padding: '10px' }}>RUN</th>
                         <th>Nombre</th>
                         <th>Correo</th>
                         <th>Rol</th>
@@ -65,19 +67,27 @@ const AdminUsersPage = () => {
                 </thead>
                 <tbody>
                     {users.length > 0 ? (
-                        users.map((user, index) => (
-                            <tr key={user.run || user.email}>
-                                <td>{user.run}</td>
+                        users.map((user) => (
+                            <tr key={user.run || user.email} style={{ borderBottom: '1px solid #444' }}>
+                                <td style={{ padding: '10px' }}>{user.run}</td>
                                 <td>{`${user.firstName} ${user.lastName}`}</td>
                                 <td>{user.email}</td>
                                 <td>{user.role}</td>
                                 <td>{user.region}</td>
                                 <td>{user.comuna}</td>
                                 <td className="actions-cell">
-                                    <button className="btn-edit" onClick={() => handleEdit(index)}>
+                                    <button
+                                        className="btn-edit"
+                                        onClick={() => handleEdit(user)}
+                                        style={{ marginRight: '10px' }}
+                                    >
                                         Editar
                                     </button>
-                                    <button className="btn-del" onClick={() => handleDelete(index)}>
+                                    <button
+                                        className="btn-del"
+                                        onClick={() => handleDelete(user.run, user.email)}
+                                        style={{ background: '#d33', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}
+                                    >
                                         Eliminar
                                     </button>
                                 </td>
@@ -85,7 +95,7 @@ const AdminUsersPage = () => {
                         ))
                     ) : (
                         <tr>
-                            <td colSpan={7} style={{ textAlign: 'center' }}>No hay usuarios registrados.</td>
+                            <td colSpan={7} style={{ textAlign: 'center', padding: '20px' }}>No hay usuarios registrados.</td>
                         </tr>
                     )}
                 </tbody>

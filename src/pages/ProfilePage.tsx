@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import type { OrderDetails, User } from '../Types';
+import { OrderService } from '../services/OrderService';
 
 // --- Datos de Regiones (Misma lógica) ---
 const regiones: Record<string, string[]> = {
@@ -30,15 +31,17 @@ const ProfilePage = () => {
 
     // Cargar datos
     useEffect(() => {
-        if (currentUser) {
-            setFormData(currentUser);
-            if (currentUser.region && regiones[currentUser.region]) {
-                setComunas(regiones[currentUser.region]);
+        const cargarPedidos = async () => {
+            if (currentUser) {
+                const token = localStorage.getItem('token');
+                if (token) {
+                    // Llamamos al backend real
+                    const pedidosReales = await OrderService.obtenerMisPedidos(token);
+                    setMisPedidos(pedidosReales);
+                }
             }
-            const todosLosPedidos: OrderDetails[] = JSON.parse(localStorage.getItem('pedidosDetallados') || '[]');
-            const filtrados = todosLosPedidos.filter(p => p.user.email === currentUser.email);
-            setMisPedidos(filtrados.reverse());
-        }
+        };
+        cargarPedidos();
     }, [currentUser]);
 
     // Manejar inputs

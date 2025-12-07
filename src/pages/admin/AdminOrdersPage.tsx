@@ -1,85 +1,80 @@
 import React, { useState, useEffect } from 'react';
-import type { OrderDetails } from '../../Types'; 
+import type { OrderDetails } from '../../Types';
+import { OrderService } from '../../services/OrderService';
 
 const money = (clp: number) => {
     return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(clp);
 }
 
-const AdminOrdersPage: React.FC = () => {
-    const [pedidos, setPedidos] = useState<OrderDetails[]>([]);
+const AdminOrdersPage = () => {
+    const [orders, setOrders] = useState<OrderDetails[]>([]);
 
-    // Cargar pedidos al iniciar
     useEffect(() => {
-        const pedidosGuardados: OrderDetails[] = JSON.parse(
-            localStorage.getItem('pedidosDetallados') || '[]'
-        );
-        setPedidos(pedidosGuardados);
+        const fetchOrders = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+
+            try {
+                // Llamamos al servicio real
+                const data = await OrderService.listarTodos(token);
+                // Ordenamos para ver lo más reciente arriba
+                setOrders(data.reverse());
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        fetchOrders();
     }, []);
 
-    // Función para eliminar un pedido
-    const handleEliminarPedido = (id: string) => {
-        if (!confirm('¿Seguro que quieres eliminar este pedido? Esta acción es permanente.')) {
-            return;
-        }
-        // 1. Filtrar el pedido
-        const pedidosActualizados = pedidos.filter(p => p.id !== id);
-        setPedidos(pedidosActualizados);
-
-        // 2. Actualizar localStorage
-        localStorage.setItem('pedidosDetallados', JSON.stringify(pedidosActualizados));
-    };
-
     return (
-        <div>
-            <h1>Pedidos / Boletas</h1>
-            <p>Aquí se listan todos los pedidos detallados realizados por los clientes.</p>
-
-            <section className="order-list">
-                {pedidos.length === 0 ? (
-                    <p>No hay pedidos detallados para mostrar.</p>
-                ) : (
-                    pedidos.map((pedido) => (
-                        <article key={pedido.id} className="order-card">
-                            <header>
-                                <div>
-                                    <strong>Pedido ID: {pedido.id}</strong>
-                                    <small>Fecha: {pedido.timestamp}</small>
-                                </div>
-                                <strong className="order-total">{money(pedido.total)}</strong>
-                            </header>
-                            
-                            <div className="order-card-body">
-                                <div className="order-customer">
-                                    <h4>Cliente</h4>
-                                    <p>{pedido.user.firstName} {pedido.user.lastName}</p>
-                                    <p>{pedido.user.email}</p>
-                                    <p>{pedido.user.address}, {pedido.user.comuna}, {pedido.user.region}</p>
-                                </div>
-                                <div className="order-items">
-                                    <h4>Productos ({pedido.items.length})</h4>
-                                    <ul>
-                                        {pedido.items.map(item => (
-                                            <li key={item.code}>
-                                                <span>{item.name} (x{item.qty})</span>
-                                                <span>{money(item.price * item.qty)}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <footer>
-                                <button 
-                                    className="btn-eliminar"
-                                    onClick={() => handleEliminarPedido(pedido.id)}
-                                >
-                                    Eliminar Pedido
-                                </button>
-                            </footer>
-                        </article>
-                    ))
-                )}
-            </section>
+        <div style={{ padding: '2rem', color: 'white' }}>
+            <h1 style={{ color: '#39FF14' }}>Historial de Ventas (Base de Datos)</h1>
+            
+            <div style={{ overflowX: 'auto' }}>
+                <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
+                    <thead>
+                        <tr style={{ background: '#222', textAlign: 'left' }}>
+                            <th style={{ padding: '10px' }}>ID</th>
+                            <th>Fecha</th>
+                            <th>Cliente</th>
+                            <th>Total</th>
+                            <th>Detalle</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {orders.length > 0 ? (
+                            orders.map((order) => (
+                                <tr key={order.id} style={{ borderBottom: '1px solid #444' }}>
+                                    <td style={{ padding: '10px' }}>#{order.id}</td>
+                                    <td>{order.timestamp}</td>
+                                    <td>
+                                        {/* Mostramos el email del cliente */}
+                                        {order.user?.email || 'Desconocido'}
+                                    </td>
+                                    <td style={{ color: '#39FF14', fontWeight: 'bold' }}>
+                                        {money(order.total)}
+                                    </td>
+                                    <td style={{ fontSize: '0.9rem', color: '#ccc' }}>
+                                        <ul style={{ margin: 0, paddingLeft: '1rem' }}>
+                                            {order.items.map((item, idx) => (
+                                                <li key={idx}>
+                                                    {item.qty}x {item.name}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan={5} style={{ textAlign: 'center', padding: '3rem' }}>
+                                    No hay ventas registradas en la Base de Datos.
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }
