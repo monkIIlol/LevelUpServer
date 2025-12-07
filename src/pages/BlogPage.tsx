@@ -22,7 +22,7 @@ const BlogPage = () => {
     }, []); 
 
     return (
-        <main id="main-content">
+        <main id="main-content" className="gamer-bg-4">
             <header className="page-header">
                 <h1>Blogs</h1>
             </header>

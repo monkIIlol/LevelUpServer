@@ -22,25 +22,21 @@ const LoginPage = () => {
             password: password
         };
 
-        // 1. Intentamos loguear con el Backend
         const exito = await login(loginData);
 
         if (exito) {
-            // 2. RECUPERAMOS EL ROL:
-            // Como el AuthContext ya guardó al usuario en localStorage, lo leemos de ahí
             const usuarioGuardado = JSON.parse(localStorage.getItem('currentUser') || '{}');
 
-            // 3. REDIRECCIÓN INTELIGENTE
             if (usuarioGuardado.role === 'Administrador') {
-                navigate('/admin'); // Si es jefe, al panel
+                navigate('/admin'); 
             } else {
-                navigate('/');      // Si es cliente, a la tienda
+                navigate('/');     
             }
         }
     }
 
     return (
-        <main id="main-content">
+        <main id="main-content" className="gamer-bg-3">
             <header className="page-header">
                 <h1>Ingreso</h1>
             </header>

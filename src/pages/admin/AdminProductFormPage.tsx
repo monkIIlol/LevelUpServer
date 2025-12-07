@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Product } from '../../Types';
 import { categories } from '../../data/products';
-import { ProductService } from '../../services/ProductService'; // Lógica real
+import { ProductService } from '../../services/ProductService';
 
 const validateForm = (product: Partial<Product>): { ok: boolean, errors: Record<string, string> } => {
     const errors: Record<string, string> = {};
@@ -14,54 +14,59 @@ const validateForm = (product: Partial<Product>): { ok: boolean, errors: Record<
     if (!product.name || product.name.trim().length === 0) {
         errors.name = 'Nombre requerido'; ok = false;
     }
-    // (Puedes agregar más validaciones aquí si quieres)
     return { ok, errors };
 }
 
 const AdminProductFormPage = () => {
     const navigate = useNavigate();
 
-    // Estado del formulario
+    // Estados
     const [formData, setFormData] = useState<Partial<Product>>({
         code: '', name: '', desc: '', price: 0, stock: 0, category: '', img: ''
     });
-
-    // Estado para los detalles técnicos (Lista)
     const [detailsText, setDetailsText] = useState('');
-
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isEditing, setIsEditing] = useState(false);
+    const [loading, setLoading] = useState(false); 
 
-    // Cargar datos si estamos en modo edición
     useEffect(() => {
-        const checkEditMode = async () => {
+        const loadProductToEdit = async () => {
             const editCode = localStorage.getItem('editProductCode');
             if (editCode) {
                 setIsEditing(true);
-                // Cargar desde Backend
-                const product = await ProductService.obtener(editCode);
-                if (product) {
-                    setFormData({
-                        code: product.code,
-                        name: product.name,
-                        desc: product.description || product.desc,
-                        price: product.price,
-                        stock: product.stock,
-                        category: product.category,
-                        img: product.img
-                    });
-                    if (product.details) {
-                        setDetailsText(product.details.join('\n'));
+                setLoading(true);
+                try {
+                    const product = await ProductService.obtener(editCode);
+                    if (product) {
+                        setFormData({
+                            code: product.code,
+                            name: product.name,
+                            desc: product.description || product.desc, 
+                            price: product.price,
+                            stock: product.stock,
+                            category: product.category,
+                            img: product.img
+                        });
+                        if (product.details) {
+                            setDetailsText(product.details.join('\n'));
+                        }
+                    } else {
+                        alert("No se encontró el producto.");
+                        navigate('/admin/products');
                     }
+                } catch (error) {
+                    console.error(error);
+                } finally {
+                    setLoading(false);
                 }
             }
         };
-        checkEditMode();
+        loadProductToEdit();
 
         return () => {
             localStorage.removeItem('editProductCode');
         }
-    }, []);
+    }, [navigate]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -89,34 +94,45 @@ const AdminProductFormPage = () => {
             stock: Number(formData.stock),
             category: formData.category!,
             img: formData.img!,
-            description: formData.desc,
-            desc: formData.desc,
+            description: formData.desc, 
+            desc: formData.desc,        
             details: detailsArray
         };
 
         try {
+            setLoading(true);
             let result;
+
             if (isEditing) {
                 result = await ProductService.actualizar(formData.code!, productToSend, token);
-                alert(result ? '¡Producto actualizado! ✅' : 'Error al actualizar');
+                if (result) alert('¡Producto actualizado! ✅');
+                else throw new Error("Error al actualizar");
             } else {
                 result = await ProductService.create(productToSend, token);
-                alert(result ? '¡Producto creado! ✅' : 'Error al crear');
+                if (result) alert('¡Producto creado! ✅');
+                else throw new Error("Error al crear");
             }
 
-            if (result) navigate('/admin/products');
+            navigate('/admin/products');
         } catch (error) {
             console.error(error);
             alert('Error de conexión con el servidor.');
+        } finally {
+            setLoading(false);
         }
     };
 
-    return (
-        <div>
-            <h1>{isEditing ? 'Editar Producto' : 'Nuevo Producto'}</h1>
+    if (loading && isEditing) return <div style={{ padding: '2rem', color: 'white', textAlign: 'center' }}>Cargando producto...</div>;
 
-            {/* Volvemos a usar el ID original para que tu CSS funcione */}
-            <form id="form-product" noValidate onSubmit={handleSubmit}>
+    return (
+        <div style={{ padding: '2rem', color: 'white' }}>
+            {/* Título centrado y neón */}
+            <h1 style={{ color: '#39FF14', textAlign: 'center' }}>
+                {isEditing ? 'Editar Producto' : 'Nuevo Producto'}
+            </h1>
+
+            {/* Formulario centrado */}
+            <form id="form-product" noValidate onSubmit={handleSubmit} style={{ margin: '0 auto' }}>
 
                 <label>Código
                     <input
@@ -125,7 +141,11 @@ const AdminProductFormPage = () => {
                         minLength={3}
                         value={formData.code}
                         onChange={handleChange}
-                        disabled={isEditing} // No se puede cambiar el código al editar
+                        disabled={isEditing}
+                        style={{
+                            background: isEditing ? '#333' : '#121212',
+                            cursor: isEditing ? 'not-allowed' : 'text'
+                        }}
                     />
                     {errors.code && <small className="error">{errors.code}</small>}
                 </label>
@@ -147,40 +167,45 @@ const AdminProductFormPage = () => {
                         maxLength={500}
                         value={formData.desc}
                         onChange={handleChange}
+                        style={{ height: '80px' }}
                     ></textarea>
                 </label>
 
-                {/* Nuevo campo necesario para los detalles técnicos */}
                 <label>Detalles Técnicos (Uno por línea)
                     <textarea
                         value={detailsText}
                         onChange={(e) => setDetailsText(e.target.value)}
                         placeholder="Ej: Pantalla 4K..."
-                        style={{ height: '100px' }} // Único estilo inline mínimo para diferenciarlo
+                        style={{ height: '100px' }}
                     ></textarea>
                 </label>
 
-                <label>Precio
-                    <input
-                        name="price"
-                        type="number"
-                        min="0"
-                        required
-                        value={formData.price}
-                        onChange={handleChange}
-                    />
-                </label>
-
-                <label>Stock
-                    <input
-                        name="stock"
-                        type="number"
-                        min="0"
-                        required
-                        value={formData.stock}
-                        onChange={handleChange}
-                    />
-                </label>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                    <div style={{ flex: 1 }}>
+                        <label>Precio
+                            <input
+                                name="price"
+                                type="number"
+                                min="0"
+                                required
+                                value={formData.price}
+                                onChange={handleChange}
+                            />
+                        </label>
+                    </div>
+                    <div style={{ flex: 1 }}>
+                        <label>Stock
+                            <input
+                                name="stock"
+                                type="number"
+                                min="0"
+                                required
+                                value={formData.stock}
+                                onChange={handleChange}
+                            />
+                        </label>
+                    </div>
+                </div>
 
                 <label>Ruta de Imagen
                     <input
@@ -208,9 +233,27 @@ const AdminProductFormPage = () => {
                     </select>
                 </label>
 
-                <button className="btn" type="submit">
-                    {isEditing ? 'Guardar Cambios' : 'Crear Producto'}
-                </button>
+                {/* Botones de Acción (Estilo simétrico) */}
+                <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+                    <button
+                        type="button"
+                        onClick={() => navigate('/admin/products')}
+                        className="btn"
+                        style={{ flex: 1, background: '#555', color: '#fff' }}
+                    >
+                        Cancelar
+                    </button>
+
+                    <button
+                        className="btn"
+                        type="submit"
+                        disabled={loading}
+                        style={{ flex: 1, background: '#39FF14', color: '#000' }}
+                    >
+                        {loading ? 'Guardando...' : (isEditing ? 'Guardar Cambios' : 'Crear Producto')}
+                    </button>
+                </div>
+
             </form>
         </div>
     );

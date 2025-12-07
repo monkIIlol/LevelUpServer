@@ -3,8 +3,9 @@ import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import type { OrderDetails, User } from '../Types';
 import { OrderService } from '../services/OrderService';
+import { UserService } from '../services/UserService'; 
 
-// --- Datos de Regiones (Misma lógica) ---
+
 const regiones: Record<string, string[]> = {
     'Metropolitana de Santiago': ['Santiago', 'San Bernardo', 'Maipú', 'Puente Alto'],
     'Valparaíso': ['Valparaíso', 'Viña del Mar', 'Quilpué'],
@@ -17,31 +18,46 @@ const money = (clp: number) => {
 }
 
 const ProfilePage = () => {
-    const { currentUser, login } = useAuth();
+    const { currentUser, login } = useAuth(); 
     const navigate = useNavigate();
 
     // Estados
     const [activeTab, setActiveTab] = useState<'perfil' | 'pedidos'>('perfil');
     const [isEditing, setIsEditing] = useState(false);
     const [misPedidos, setMisPedidos] = useState<OrderDetails[]>([]);
+    const [loading, setLoading] = useState(false);
     
+    // Formulario
     const [formData, setFormData] = useState<Partial<User>>({});
     const [comunas, setComunas] = useState<string[]>([]);
     
-
-    // Cargar datos
+    // Cargar datos iniciales
     useEffect(() => {
-        const cargarPedidos = async () => {
+        const cargarDatos = async () => {
             if (currentUser) {
                 const token = localStorage.getItem('token');
-                if (token) {
-                    // Llamamos al backend real
-                    const pedidosReales = await OrderService.obtenerMisPedidos(token);
-                    setMisPedidos(pedidosReales);
+                if (!token) return;
+
+                // Cargar Pedidos
+                const pedidosReales = await OrderService.obtenerMisPedidos(token);
+                setMisPedidos(pedidosReales);
+
+                setFormData({
+                    run: currentUser.run,
+                    firstName: currentUser.firstName,
+                    lastName: currentUser.lastName,
+                    email: currentUser.email,
+                    region: currentUser.region,
+                    comuna: currentUser.comuna,
+                    address: currentUser.address
+                });
+
+                if (currentUser.region && regiones[currentUser.region]) {
+                    setComunas(regiones[currentUser.region]);
                 }
             }
         };
-        cargarPedidos();
+        cargarDatos();
     }, [currentUser]);
 
     // Manejar inputs
@@ -55,8 +71,8 @@ const ProfilePage = () => {
         }
     };
 
-    // Guardar cambios
-    const handleSave = (e: React.FormEvent) => {
+    // Guardar cambios 
+    const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!currentUser) return;
 
@@ -65,16 +81,39 @@ const ProfilePage = () => {
             return;
         }
 
-        const usuarios: User[] = JSON.parse(localStorage.getItem('usuarios') || '[]');
-        const index = usuarios.findIndex(u => u.email === currentUser.email);
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert("Sesión expirada.");
+            navigate('/login');
+            return;
+        }
 
-        if (index !== -1) {
-            const usuarioActualizado = { ...usuarios[index], ...formData };
-            usuarios[index] = usuarioActualizado as User;
-            localStorage.setItem('usuarios', JSON.stringify(usuarios));
-            login(usuarioActualizado as User);
-            alert("Perfil actualizado correctamente ✅");
-            setIsEditing(false);
+        try {
+            setLoading(true);
+            
+            const usuarioParaGuardar = {
+                ...currentUser, 
+                ...formData 
+            } as User;
+
+            const usuarioActualizado = await UserService.actualizar(usuarioParaGuardar, token);
+
+            if (usuarioActualizado) {
+
+                localStorage.setItem('currentUser', JSON.stringify(usuarioActualizado));
+                
+                alert("Perfil actualizado correctamente  ✅");
+                setIsEditing(false);
+                window.location.reload(); 
+            } else {
+                alert("Error al actualizar el perfil.");
+            }
+
+        } catch (error) {
+            console.error("Error al guardar perfil:", error);
+            alert("Hubo un problema de conexión.");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -89,7 +128,7 @@ const ProfilePage = () => {
     }
 
     return (
-        <main id="main-content">
+        <main id="main-content" className="gamer-bg">
             <header className="page-header">
                 <h1>Mi Cuenta</h1>
             </header>
@@ -114,7 +153,6 @@ const ProfilePage = () => {
             {activeTab === 'perfil' && (
                 <section className="profile-card">
                     {!isEditing ? (
-                        // MODO LECTURA
                         <div className="profile-view">
                             <div className="profile-header">
                                 <h2>Información Personal</h2>
@@ -156,33 +194,35 @@ const ProfilePage = () => {
                             <div className="edit-grid">
                                 <div>
                                     <label>Nombres</label>
-                                    <input name="firstName" value={formData.firstName} onChange={handleChange} required />
+                                    <input name="firstName" value={formData.firstName || ''} onChange={handleChange} required />
                                 </div>
                                 <div>
                                     <label>Apellidos</label>
-                                    <input name="lastName" value={formData.lastName} onChange={handleChange} required />
+                                    <input name="lastName" value={formData.lastName || ''} onChange={handleChange} required />
                                 </div>
                                 <div>
                                     <label>Región</label>
-                                    <select name="region" value={formData.region} onChange={handleChange} required>
+                                    <select name="region" value={formData.region || ''} onChange={handleChange} required>
                                         <option value="">Selecciona...</option>
                                         {regionNombres.map(r => <option key={r} value={r}>{r}</option>)}
                                     </select>
                                 </div>
                                 <div>
                                     <label>Comuna</label>
-                                    <select name="comuna" value={formData.comuna} onChange={handleChange} required disabled={!comunas.length}>
+                                    <select name="comuna" value={formData.comuna || ''} onChange={handleChange} required disabled={!comunas.length}>
                                         {comunas.map(c => <option key={c} value={c}>{c}</option>)}
                                     </select>
                                 </div>
                                 <div>
                                     <label>Dirección</label>
-                                    <input name="address" value={formData.address} onChange={handleChange} required />
+                                    <input name="address" value={formData.address || ''} onChange={handleChange} required />
                                 </div>
                             </div>
 
                             <div className="edit-actions">
-                                <button type="submit" className="btn-primary">Guardar Cambios</button>
+                                <button type="submit" className="btn-primary" disabled={loading}>
+                                    {loading ? 'Guardando...' : 'Guardar Cambios'}
+                                </button>
                                 <button type="button" onClick={() => setIsEditing(false)} className="btn-secondary">Cancelar</button>
                             </div>
                         </form>
@@ -207,10 +247,10 @@ const ProfilePage = () => {
                             <article key={pedido.id} className="order-item">
                                 <div className="order-header">
                                     <div>
-                                        <div className="order-id">Pedido #{pedido.id.slice(0, 8)}</div>
+                                        <div className="order-id">Pedido #{pedido.id}</div>
                                         <div className="order-date">{pedido.timestamp}</div>
                                     </div>
-                                    <div style={{ color: '#fff' }}>✅ Procesado</div>
+                                    <div style={{ color: '#39FF14' }}>✅ Pagado</div>
                                 </div>
                                 <div className="order-body">
                                     <ul className="order-product-list">
@@ -222,7 +262,7 @@ const ProfilePage = () => {
                                         ))}
                                     </ul>
                                     <div className="order-total-price">
-                                        Total Pagado: {money(pedido.total)}
+                                        Total: {money(pedido.total)}
                                     </div>
                                 </div>
                             </article>

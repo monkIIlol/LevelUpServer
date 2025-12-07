@@ -13,11 +13,8 @@ const AdminOrdersPage = () => {
         const fetchOrders = async () => {
             const token = localStorage.getItem('token');
             if (!token) return;
-
             try {
-                // Llamamos al servicio real
                 const data = await OrderService.listarTodos(token);
-                // Ordenamos para ver lo más reciente arriba
                 setOrders(data.reverse());
             } catch (error) {
                 console.error(error);
@@ -48,7 +45,6 @@ const AdminOrdersPage = () => {
                                     <td style={{ padding: '10px' }}>#{order.id}</td>
                                     <td>{order.timestamp}</td>
                                     <td>
-                                        {/* Mostramos el email del cliente */}
                                         {order.user?.email || 'Desconocido'}
                                     </td>
                                     <td style={{ color: '#39FF14', fontWeight: 'bold' }}>

@@ -1,16 +1,14 @@
-
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom'; 
 import { useAuth } from '../context/AuthContext';
 
 const UserMenu = () => {
     const { currentUser, logout } = useAuth();
-
     const [isOpen, setIsOpen] = useState(false);
 
     if (!currentUser) {
         return null;
     }
-
 
     const userName = currentUser.firstName || currentUser.email.split('@')[0];
 
@@ -20,21 +18,54 @@ const UserMenu = () => {
         </svg>
     );
 
+    const closeMenu = () => setIsOpen(false);
+
     return (
-        <div className="user-menu">
+        <div className="user-menu" style={{ position: 'relative' }}>
             <button
                 className="user-menu-trigger"
-                onClick={() => setIsOpen(!isOpen)} 
+                onClick={() => setIsOpen(!isOpen)}
+                
             >
                 {userIconSVG}
                 {userName} &#9662;
             </button>
 
             {isOpen && (
-                <div id="user-dropdown" className="dropdown-content show">
-                    <a href="/perfil" style={{ borderBottom: '1px solid #333' }}>Mi Perfil</a>
+                <div id="user-dropdown" className="dropdown-content show" style={{ display: 'flex', flexDirection: 'column' }}>
+                    
+                    {/* --- BOTÓN EXCLUSIVO ADMIN --- */}
+                    {currentUser.role === 'Administrador' && (
+                        <Link 
+                            to="/admin" 
+                            onClick={closeMenu}
+                            style={{ 
+                                padding: '12px 16px',
+                                borderBottom: '1px solid #333', 
+                                color: '#39FF14', 
+                                fontWeight: 'bold',
+                                textDecoration: 'none'
+                            }}
+                        >
+                             Panel Admin
+                        </Link>
+                    )}
 
-                    <a href="#" id="logout-button" onClick={logout}>
+                    {/* Links Comunes */}
+                    <Link 
+                        to="/perfil" 
+                        onClick={closeMenu}
+                        style={{ padding: '12px 16px', borderBottom: '1px solid #333', textDecoration: 'none', color: '#fff' }}
+                    >
+                        Mi Perfil
+                    </Link>
+
+                    <a 
+                        href="#" 
+                        id="logout-button" 
+                        onClick={(e) => { e.preventDefault(); logout(); closeMenu(); }}
+                        style={{ padding: '12px 16px', color: '#ff6b6b', textDecoration: 'none' }}
+                    >
                         Cerrar Sesión
                     </a>
                 </div>

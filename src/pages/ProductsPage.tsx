@@ -15,16 +15,13 @@ const ProductsPage = () => {
 
     useEffect(() => {
         const cargarProductos = async () => {
-            // Llamamos a Java
             const data = await ProductService.listar();
             
             if (data.length > 0) {
                 setAllProducts(data);
                 setFilteredProducts(data);
             } else {
-                // (Opcional) Si la BD está vacía, podrías dejar el localStorage como respaldo
-                // o mostrar un mensaje de "No hay productos".
-                console.log("No se encontraron productos en el servidor.");
+                ("No se encontraron productos en el servidor.");
             }
         };
 
@@ -51,7 +48,7 @@ const ProductsPage = () => {
     };
 
     return (
-        <main id="main-content">
+        <main id="main-content" className="gamer-bg-2">
             <header className="page-header">
                 <h1>Productos</h1>
             </header>

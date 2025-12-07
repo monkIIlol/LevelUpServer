@@ -82,7 +82,6 @@ const CheckoutPage: React.FC = () => {
         }
 
         try {
-            // Recuperamos el token del usuario logueado
             const token = localStorage.getItem('token');
 
             if (!token) {
@@ -91,21 +90,13 @@ const CheckoutPage: React.FC = () => {
                 return;
             }
 
-            // Llamamos al servicio (Aquí es donde se descuenta el stock en la BD)
             await OrderService.crearPedido(cartItems, token);
-
-            // Si todo salió bien:
             alert("¡Compra exitosa! 🎉");
-            
-            // Limpiamos el carrito local
             clearCart(); 
-            
-            // Redirigimos al éxito
             navigate('/checkout-success');
 
         } catch (error: any) {
             console.error("Fallo la compra:", error);
-            // Mostramos el error que viene de Java (ej: "Sin stock suficiente")
             alert("Error al comprar: " + error.message);
             navigate('/checkout-error');
         }

@@ -11,20 +11,17 @@ const CartPage = () => {
     const { cartItems, increaseQty, decreaseQty, removeFromCart, clearCart } = useCart();
     const navigate = useNavigate();
 
-    // Estado para manejar qué items están seleccionados (checkbox)
     const [selectedCodes, setSelectedCodes] = useState<string[]>([]);
     const [allProducts, setAllProducts] = useState<Product[]>([]);
 
-    // Cargar productos para obtener las imágenes (ya que CartItem no tiene imagen)
     useEffect(() => {
         const productsData = JSON.parse(localStorage.getItem('productos') || '[]');
         setAllProducts(productsData);
 
-        // Por defecto, seleccionamos todos los items al cargar
         if (cartItems.length > 0) {
             setSelectedCodes(cartItems.map(i => i.code));
         }
-    }, [cartItems.length]); // Dependencia ajustada
+    }, [cartItems.length]); 
 
     // Encontrar imagen del producto
     const getProductImage = (code: string) => {
@@ -32,7 +29,7 @@ const CartPage = () => {
         return product ? `/${product.img}` : '/img/default.png';
     }
 
-    // Manejar Checkbox individual
+    // Checkbox individual
     const toggleSelect = (code: string) => {
         if (selectedCodes.includes(code)) {
             setSelectedCodes(selectedCodes.filter(c => c !== code));
@@ -62,8 +59,6 @@ const CartPage = () => {
             alert('Selecciona al menos un producto para pagar ❌');
             return;
         }
-        // NOTA: En un escenario real, aquí pasarías solo los "selectedCodes" al checkout.
-        // Por ahora, mantenemos el flujo original pero validando selección.
         navigate('/checkout');
     }
 

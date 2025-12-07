@@ -1,115 +1,135 @@
 import React, { useState, useEffect } from 'react';
-// Importamos el nuevo tipo de mensaje
-import type { Product, User, ContactoMensaje } from '../../Types';
-
-
-interface HistoryItem {
-    user: string;
-    product: string;
-    code: string;
-    timestamp: string;
-}
+import { useNavigate } from 'react-router-dom';
+import { ProductService } from '../../services/ProductService';
+import { UserService } from '../../services/UserService';
+import { OrderService } from '../../services/OrderService';
+import { ContactService } from '../../services/ContactService';
+import type { ContactoMensaje, OrderDetails } from '../../Types';
 
 const DashboardPage = () => {
+    const navigate = useNavigate();
 
     const [productCount, setProductCount] = useState(0);
     const [userCount, setUserCount] = useState(0);
     const [orderCount, setOrderCount] = useState(0);
-    const [recentOrders, setRecentOrders] = useState<HistoryItem[]>([]);
-
-    // --- INICIO ADICIÓN DE MENSAJES ---
+    const [recentOrders, setRecentOrders] = useState<OrderDetails[]>([]);
+    
     const [mensajes, setMensajes] = useState<ContactoMensaje[]>([]);
-    // --- FIN ADICIÓN DE MENSAJES ---
 
     useEffect(() => {
-        const products: Product[] = JSON.parse(localStorage.getItem('productos') || '[]');
-        setProductCount(products.length);
+        const loadDashboardData = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                return;
+            }
 
-        const users: User[] = JSON.parse(localStorage.getItem('usuarios') || '[]');
-        setUserCount(users.length);
+            try {
+                // 1. Cargar Productos Reales 
+                const productsData = await ProductService.listar();
+                setProductCount(productsData.length);
 
-        const history: HistoryItem[] = JSON.parse(localStorage.getItem('cartHistory') || '[]');
-        setOrderCount(history.length);
-        setRecentOrders(history.slice(-10).reverse());
+                // 2. Cargar Usuarios Reales 
+                const usersData = await UserService.listar(token);
+                setUserCount(usersData.length);
 
-        // --- INICIO ADICIÓN DE MENSAJES ---
-        // Cargar mensajes de contacto desde localStorage
-        const mensajesGuardados: ContactoMensaje[] = JSON.parse(
-            localStorage.getItem('mensajesContacto') || '[]'
-        );
-        setMensajes(mensajesGuardados);
-        // --- FIN ADICIÓN DE MENSAJES ---
+                // 3. Cargar Pedidos Reales 
+                const ordersData = await OrderService.listarTodos(token);
+                setOrderCount(ordersData.length);
+                
+                // Tomamos los últimos 5 pedidos
+                setRecentOrders(ordersData.slice(0, 5));
 
+                // 4. Cargar Mensajes Reales 
+                const msgs = await ContactService.listar(token);
+                setMensajes(msgs);
+
+            } catch (error) {
+                console.error("Error cargando dashboard:", error);
+            }
+        };
+
+        loadDashboardData();
     }, []);
 
-    // --- INICIO ADICIÓN DE MENSAJES ---
-    // Función para eliminar un mensaje
-    const handleEliminarMensaje = (id: string) => {
-        if (!confirm('¿Seguro que quieres eliminar este mensaje?')) {
-            return;
+    // Función para eliminar 
+    const handleEliminarMensaje = async (id: string) => {
+        if (!confirm('¿Seguro que quieres eliminar este mensaje de la BD?')) return;
+        
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const exito = await ContactService.eliminar(id, token);
+        
+        if (exito) {
+            setMensajes(prev => prev.filter(m => m.id !== id));
+        } else {
+            alert("Error al eliminar el mensaje.");
         }
-        // 1. Filtrar el mensaje fuera del estado
-        const mensajesActualizados = mensajes.filter(m => m.id !== id);
-        setMensajes(mensajesActualizados);
-
-        // 2. Actualizar localStorage
-        localStorage.setItem('mensajesContacto', JSON.stringify(mensajesActualizados));
     };
-    // --- FIN ADICIÓN DE MENSAJES ---
-
 
     return (
         <div>
-            <h1>Dashboard</h1>
+            <h1 style={{ color: '#39FF14' }}>Dashboard General</h1>
 
             <section className="stats">
                 <div className="stat-card">
                     <h3>Productos</h3>
-                    <p id="stat-products">{productCount}</p>
+                    <p id="stat-products" style={{ fontSize: '2rem', fontWeight: 'bold' }}>{productCount}</p>
                 </div>
                 <div className="stat-card">
-                    <h3>Usuarios</h3>
-                    <p id="stat-users">{userCount}</p>
+                    <h3>Usuarios Registrados</h3>
+                    <p id="stat-users" style={{ fontSize: '2rem', fontWeight: 'bold' }}>{userCount}</p>
                 </div>
                 <div className="stat-card">
-                    <h3>Pedidos</h3>
-                    <p id="stat-orders">{orderCount}</p>
+                    <h3>Ventas Totales</h3>
+                    <p id="stat-orders" style={{ fontSize: '2rem', fontWeight: 'bold' }}>{orderCount}</p>
                 </div>
             </section>
 
             <section className="recent-orders">
-                <h2>Pedidos recientes</h2>
+                <h2 style={{ marginTop: '2rem' }}>Últimas Ventas (Base de Datos)</h2>
                 <table className="orders-table">
                     <thead>
                         <tr>
-                            <th>Usuario</th>
-                            <th>Producto</th>
-                            <th>Código</th>
+                            <th>ID Pedido</th>
+                            <th>Cliente</th>
+                            <th>Total</th>
                             <th>Fecha</th>
                         </tr>
                     </thead>
                     <tbody id="orders-body">
                         {recentOrders.length > 0 ? (
-                            recentOrders.map((order, index) => (
-                                <tr key={index}>
-                                    <td>{order.user}</td>
-                                    <td>{order.product}</td>
-                                    <td>{order.code}</td>
-                                    <td>{new Date(order.timestamp).toLocaleString('es-CL')}</td>
+                            recentOrders.map((order) => (
+                                <tr key={order.id}>
+                                    <td>#{order.id}</td>
+                                    <td>{order.user?.email || 'Anónimo'}</td>
+                                    <td style={{ color: '#39FF14' }}>
+                                        ${new Intl.NumberFormat('es-CL').format(order.total)}
+                                    </td>
+                                    <td>{order.timestamp}</td>
                                 </tr>
                             ))
                         ) : (
                             <tr>
-                                <td colSpan={4} style={{ textAlign: 'center' }}>No hay pedidos recientes.</td>
+                                <td colSpan={4} style={{ textAlign: 'center', padding: '1rem' }}>
+                                    No hay ventas registradas aún.
+                                </td>
                             </tr>
                         )}
                     </tbody>
                 </table>
+                <button 
+                    className="btn" 
+                    style={{ marginTop: '1rem', background: '#333', color: '#fff', border: '1px solid #555' }}
+                    onClick={() => navigate('/admin/orders')}
+                >
+                    Ver todo el historial
+                </button>
             </section>
 
-            {/* --- INICIO DE LA SECCIÓN DE MENSAJES --- */}
-            <section className="recent-messages">
-                <h2>Mensajes de Contacto / Reclamos</h2>
+            {/* SECCIÓN DE MENSAJES  */}
+            <section className="recent-messages" style={{ marginTop: '3rem', borderTop: '1px solid #333', paddingTop: '1rem' }}>
+                <h2>Mensajes de Contacto (Base de Datos)</h2>
                 <div className="message-list">
                     {mensajes.length === 0 ? (
                         <p>No hay mensajes nuevos.</p>
@@ -121,14 +141,11 @@ const DashboardPage = () => {
                                         <strong>De: {msg.name}</strong>
                                         <small> ({msg.email})</small>
                                     </div>
-                                    <small>Recibido: {msg.timestamp}</small>
+                                    <small>{msg.timestamp}</small>
                                 </header>
                                 <p>{msg.comment}</p>
                                 <footer>
-                                    <button
-                                        className="btn-eliminar"
-                                        onClick={() => handleEliminarMensaje(msg.id)}
-                                    >
+                                    <button className="btn-eliminar" onClick={() => handleEliminarMensaje(msg.id)}>
                                         Eliminar
                                     </button>
                                 </footer>
@@ -137,8 +154,6 @@ const DashboardPage = () => {
                     )}
                 </div>
             </section>
-            {/* --- FIN DE LA SECCIÓN DE MENSAJES --- */}
-
         </div>
     );
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ProductCard from '../components/ProductCard';
 import type { Product } from '../Types';
-import { ProductService } from '../services/ProductService'; // Importamos el servicio
+import { ProductService } from '../services/ProductService'; 
 
 const HomePage = () => {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
@@ -11,11 +11,9 @@ const HomePage = () => {
   useEffect(() => {
     const fetchHomeData = async () => {
         try {
-            // Pedimos los datos reales a Java
             const data = await ProductService.listar();
             
             if (data.length > 0) {
-                // Repartimos los productos para que la Home se vea llena
                 setFeaturedProducts(data.slice(0, 3));
                 setOfferProducts(data.slice(3, 6));
                 setTopSalesProducts(data.slice(6, 9));
@@ -29,7 +27,7 @@ const HomePage = () => {
   }, []);
 
   return (
-    <main id="main-content">
+    <main id="main-content" className="gamer-bg">
       {/* SECCIÓN HERO */}
       <section className="hero">
         <div className="hero-overlay">

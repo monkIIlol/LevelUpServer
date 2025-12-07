@@ -160,7 +160,7 @@ const RegisterPage = () => {
     };
 
     return (
-        <main id="main-content">
+        <main id="main-content" className="gamer-bg-3">
             <header className="page-header">
                 <h1>Registro</h1>
             </header>

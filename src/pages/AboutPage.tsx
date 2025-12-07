@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 const AboutPage = () => {
   return (
-    <main id="main-content">
+    <main id="main-content" className="gamer-bg">
       <header className="page-header">
         <h1>Nosotros</h1>
       </header>
