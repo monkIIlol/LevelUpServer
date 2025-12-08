@@ -2008,3 +2008,342 @@ input[type="checkbox"] {
   background-attachment: fixed;
   min-height: 100vh;
 }
+
+/* =========================================
+   DETALLE DE PRODUCTO (Estilo E-commerce)
+   ========================================= */
+.product-detail-layout {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr; /* Imagen más ancha, info a la derecha */
+  gap: 40px;
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
+  align-items: start;
+}
+
+.detail-image-container {
+  background: #1a1a1a;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.detail-image-container img {
+  max-width: 100%;
+  max-height: 500px;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.detail-image-container img:hover {
+  transform: scale(1.05); /* Efecto zoom suave */
+}
+
+.detail-info-box {
+  background: #1e1e1e;
+  padding: 30px;
+  border-radius: 12px;
+  border: 1px solid #333;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.detail-price {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 10px 0;
+}
+
+.detail-features {
+  margin-top: 40px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 20px;
+}
+
+.specs-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  color: #ccc;
+}
+
+.specs-table tr:nth-child(odd) {
+  background: #1a1a1a;
+}
+
+.specs-table td {
+  padding: 12px;
+  border-bottom: 1px solid #333;
+}
+
+.specs-table td:first-child {
+  font-weight: bold;
+  color: #39FF14; /* Tu verde neón */
+  width: 30%;
+}
+
+/* Responsive para celulares */
+@media (max-width: 768px) {
+  .product-detail-layout {
+    grid-template-columns: 1fr; /* Una sola columna en móvil */
+  }
+}
+
+  /* =========================================
+   ESTILO CYBERPUNK GLASSMORPHISM
+   ========================================= */
+
+/* Contenedor Principal con Grid */
+.cyber-container {
+  display: grid;
+  grid-template-columns: 260px 1fr; /* Sidebar ancho fijo, contenido flexible */
+  gap: 40px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  align-items: start;
+  position: relative;
+  z-index: 1; /* Asegura que esté sobre el fondo */
+}
+
+/* Sidebar de Cristal */
+.cyber-sidebar {
+  background: rgba(20, 20, 20, 0.6); /* Semi-transparente */
+  backdrop-filter: blur(12px); /* Efecto borroso detrás */
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 25px;
+  position: sticky;
+  top: 100px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.cyber-filter-title {
+  font-size: 1.2rem;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #39FF14;
+  padding-bottom: 10px;
+  text-shadow: 0 0 10px rgba(57, 255, 20, 0.5); /* Brillo verde */
+}
+
+/* Botones del Filtro */
+.cyber-filter-btn {
+  display: block;
+  width: 100%;
+  padding: 12px 15px;
+  margin-bottom: 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #aaa;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+.cyber-filter-btn:hover {
+  background: rgba(57, 255, 20, 0.1);
+  color: #fff;
+  border-left: 4px solid #39FF14;
+  padding-left: 20px; /* Efecto de desplazamiento */
+}
+
+.cyber-filter-btn.active {
+  background: linear-gradient(90deg, rgba(57, 255, 20, 0.2), transparent);
+  color: #39FF14;
+  border-left: 4px solid #39FF14;
+  font-weight: bold;
+  box-shadow: 0 0 15px rgba(57, 255, 20, 0.2);
+}
+
+/* Grilla de Productos */
+.cyber-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Tarjetas más anchas */
+  gap: 30px;
+}
+
+/* Header del Catálogo */
+.cyber-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(20, 20, 20, 0.8);
+  padding: 15px 25px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 30px;
+  backdrop-filter: blur(10px);
+}
+
+.cyber-count {
+  color: #ccc;
+  font-family: 'Courier New', monospace; /* Toque hacker */
+}
+
+.cyber-select {
+  background: #000;
+  color: #39FF14;
+  border: 1px solid #39FF14;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  outline: none;
+}
+
+/* Banner Hero */
+.cyber-banner {
+  height: 300px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.3), #121212), url('/img/gaming-banner-23.jpg'); /* Asegúrate de tener una imagen panorámica o usa setup.jpg */
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-bottom: 4px solid #39FF14;
+  box-shadow: 0 10px 50px rgba(57, 255, 20, 0.1);
+}
+
+.cyber-banner h1 {
+  font-size: 3.5rem;
+  color: #fff;
+  text-transform: uppercase;
+  margin: 0;
+  text-shadow: 0 0 20px rgba(57, 255, 20, 0.8); /* Super brillo */
+  letter-spacing: 4px;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .cyber-container {
+    grid-template-columns: 1fr;
+  }
+  .cyber-sidebar {
+    position: relative;
+    top: 0;
+    margin-bottom: 30px;
+  }
+}
+
+/* =========================================
+   NUEVO ESTILO REGISTRO (Gamer Pro)
+   ========================================= */
+
+.form-container {
+    background: rgba(20, 20, 20, 0.95); /* Fondo oscuro casi sólido */
+    padding: 40px;
+    border-radius: 16px;
+    border: 1px solid rgba(57, 255, 20, 0.3); /* Borde verde sutil */
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), 
+                0 0 10px rgba(57, 255, 20, 0.1); /* Resplandor suave */
+    max-width: 600px; /* Un poco más ancho para que respire */
+    margin: 40px auto; /* Centrado vertical y horizontal */
+    backdrop-filter: blur(10px); /* Efecto cristal si hay fondo detrás */
+}
+
+/* Título del formulario */
+.form-container h2 {
+    text-align: center;
+    color: #fff;
+    margin-bottom: 30px;
+    font-size: 2rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(57, 255, 20, 0.6); /* Brillo en el título */
+}
+
+/* Grupos de campos (Separación) */
+.form-container .mb-3 {
+    margin-bottom: 20px !important;
+}
+
+/* Etiquetas (Labels) */
+.form-container label.form-label {
+    display: block;
+    margin-bottom: 8px;
+    color: #ccc; /* Gris claro para no cansar la vista */
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+}
+
+/* Campos de texto (Inputs) */
+.form-container .form-control,
+.form-container .form-select {
+    background-color: #0a0a0a !important; /* Fondo muy oscuro */
+    border: 1px solid #333 !important;
+    color: #fff !important;
+    padding: 12px 15px; /* Más padding interno */
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+/* Efecto al escribir (Focus) */
+.form-container .form-control:focus,
+.form-container .form-select:focus {
+    background-color: #111 !important;
+    border-color: #39FF14 !important; /* Borde verde neón */
+    box-shadow: 0 0 15px rgba(57, 255, 20, 0.2) !important; /* Resplandor al escribir */
+    outline: none;
+}
+
+/* Botón de Registro */
+.form-container .btn {
+    background: linear-gradient(90deg, #39FF14, #2ecc71); /* Degradado verde */
+    color: #000;
+    font-weight: 800;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.form-container .btn:hover {
+    transform: translateY(-2px); /* Se levanta un poco */
+    box-shadow: 0 5px 20px rgba(57, 255, 20, 0.4); /* Sombra más fuerte */
+    background: linear-gradient(90deg, #2ecc71, #39FF14);
+}
+
+/* Mensajes de error */
+.invalid-feedback {
+    color: #ff6b6b !important;
+    font-size: 0.85rem;
+    margin-top: 6px;
+    font-weight: 500;
+}
+
+/* Fieldset (Agrupaciones como "Datos de Acceso") */
+fieldset {
+    border: 1px solid #333;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    background: rgba(255, 255, 255, 0.02); /* Ligeramente más claro que el fondo */
+}
+
+legend {
+    font-size: 1.1rem;
+    color: #39FF14; /* Títulos de sección en verde */
+    padding: 0 10px;
+    font-weight: bold;
+    width: auto !important; /* Fix para bootstrap */
+    float: none !important; /* Fix para bootstrap */
+    margin-bottom: 0;
+}

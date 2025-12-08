@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import type { OrderDetails, User } from '../Types';
 import { OrderService } from '../services/OrderService';
-import { UserService } from '../services/UserService'; 
+import { UserService } from '../services/UserService';
 
 
 const regiones: Record<string, string[]> = {
@@ -18,7 +18,7 @@ const money = (clp: number) => {
 }
 
 const ProfilePage = () => {
-    const { currentUser, login } = useAuth(); 
+    const { currentUser, login } = useAuth();
     const navigate = useNavigate();
 
     // Estados
@@ -26,11 +26,11 @@ const ProfilePage = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [misPedidos, setMisPedidos] = useState<OrderDetails[]>([]);
     const [loading, setLoading] = useState(false);
-    
+
     // Formulario
     const [formData, setFormData] = useState<Partial<User>>({});
     const [comunas, setComunas] = useState<string[]>([]);
-    
+
     // Cargar datos iniciales
     useEffect(() => {
         const cargarDatos = async () => {
@@ -90,21 +90,17 @@ const ProfilePage = () => {
 
         try {
             setLoading(true);
-            
             const usuarioParaGuardar = {
-                ...currentUser, 
-                ...formData 
+                ...currentUser,
+                ...formData
             } as User;
 
             const usuarioActualizado = await UserService.actualizar(usuarioParaGuardar, token);
-
             if (usuarioActualizado) {
-
                 localStorage.setItem('currentUser', JSON.stringify(usuarioActualizado));
-                
                 alert("Perfil actualizado correctamente  ✅");
                 setIsEditing(false);
-                window.location.reload(); 
+                window.location.reload();
             } else {
                 alert("Error al actualizar el perfil.");
             }
@@ -122,7 +118,7 @@ const ProfilePage = () => {
             <main id="main-content" style={{ textAlign: 'center', paddingTop: '4rem' }}>
                 <h2>Acceso Restringido</h2>
                 <p>Debes iniciar sesión para ver tu perfil.</p>
-                <Link to="/login" className="btn-primary" style={{ display:'inline-block', width: 'auto', marginTop: '1rem' }}>Iniciar Sesión</Link>
+                <Link to="/login" className="btn-primary" style={{ display: 'inline-block', width: 'auto', marginTop: '1rem' }}>Iniciar Sesión</Link>
             </main>
         );
     }
@@ -135,17 +131,17 @@ const ProfilePage = () => {
 
             {/* --- TABS --- */}
             <div className="profile-tabs">
-                <button 
+                <button
                     className={`tab-btn ${activeTab === 'perfil' ? 'active' : ''}`}
                     onClick={() => setActiveTab('perfil')}
                 >
-                     Mis Datos
+                    Mis Datos
                 </button>
-                <button 
+                <button
                     className={`tab-btn ${activeTab === 'pedidos' ? 'active' : ''}`}
                     onClick={() => setActiveTab('pedidos')}
                 >
-                     Mis Pedidos
+                    Mis Pedidos
                 </button>
             </div>
 
@@ -157,10 +153,10 @@ const ProfilePage = () => {
                             <div className="profile-header">
                                 <h2>Información Personal</h2>
                                 <button onClick={() => setIsEditing(true)} className="btn-icon-edit">
-                                     Modificar
+                                    Modificar
                                 </button>
                             </div>
-                            
+
                             <div className="data-grid">
                                 <div className="data-item">
                                     <span className="data-label">Nombre Completo</span>
@@ -190,7 +186,7 @@ const ProfilePage = () => {
                             <div className="profile-header">
                                 <h2>Editar Perfil</h2>
                             </div>
-                            
+
                             <div className="edit-grid">
                                 <div>
                                     <label>Nombres</label>
@@ -234,7 +230,7 @@ const ProfilePage = () => {
             {activeTab === 'pedidos' && (
                 <section className="orders-container">
                     {misPedidos.length === 0 ? (
-                        <div className="profile-card" style={{textAlign: 'center'}}>
+                        <div className="profile-card" style={{ textAlign: 'center' }}>
                             <p style={{ fontSize: '1.1rem', color: '#aaa', marginBottom: '1.5rem' }}>
                                 Aún no has realizado compras en Level-Up.
                             </p>

@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useCart } from '../context/CartContext';
-import type { User, OrderDetails } from '../Types';
+import { useCart } from '../context/CartContext'; 
 import { OrderService } from '../services/OrderService';
 
-// Lógica de Regiones y Comunas
 const regiones: Record<string, string[]> = {
     'Metropolitana de Santiago': ['Santiago', 'San Bernardo', 'Maipú', 'Puente Alto'],
     'Valparaíso': ['Valparaíso', 'Viña del Mar', 'Quilpué'],
@@ -31,8 +29,9 @@ const CheckoutPage: React.FC = () => {
         address: ''
     });
     const [comunas, setComunas] = useState<string[]>([]);
-    const [errors, setErrors] = useState<Partial<typeof formData>>({});
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
+    // Cargar datos del usuario si está logueado
     useEffect(() => {
         if (currentUser) {
             setFormData({
@@ -46,7 +45,7 @@ const CheckoutPage: React.FC = () => {
         }
     }, [currentUser]);
 
-    // Actualizar comunas 
+    // Cargar comunas al cambiar región
     useEffect(() => {
         if (formData.region && regiones[formData.region]) {
             setComunas(regiones[formData.region]);
@@ -66,15 +65,15 @@ const CheckoutPage: React.FC = () => {
         e.preventDefault();
         setErrors({});
         let ok = true;
-        const newErrors: Partial<typeof formData> = {};
+        const newErrors: Record<string, string> = {};
 
-        // Validaciones 
-        if (!formData.firstName.trim()) { newErrors.firstName = 'Nombre requerido'; ok = false; }
-        if (!formData.lastName.trim()) { newErrors.lastName = 'Apellido requerido'; ok = false; }
-        if (!formData.email.trim()) { newErrors.email = 'Email requerido'; ok = false; }
-        if (!formData.region) { newErrors.region = 'Región requerida'; ok = false; }
-        if (!formData.comuna) { newErrors.comuna = 'Comuna requerida'; ok = false; }
-        if (!formData.address.trim()) { newErrors.address = 'Dirección requerida'; ok = false; }
+        // Validaciones simples
+        if (!formData.firstName.trim()) { newErrors.firstName = 'Requerido'; ok = false; }
+        if (!formData.lastName.trim()) { newErrors.lastName = 'Requerido'; ok = false; }
+        if (!formData.email.trim()) { newErrors.email = 'Requerido'; ok = false; }
+        if (!formData.region) { newErrors.region = 'Requerido'; ok = false; }
+        if (!formData.comuna) { newErrors.comuna = 'Requerido'; ok = false; }
+        if (!formData.address.trim()) { newErrors.address = 'Requerido'; ok = false; }
 
         if (!ok) {
             setErrors(newErrors);
@@ -90,15 +89,28 @@ const CheckoutPage: React.FC = () => {
                 return;
             }
 
-            await OrderService.crearPedido(cartItems, token);
-            alert("¡Compra exitosa! 🎉");
+            // 1. Crear el pedido en el Backend
+            const respuestaBackend = await OrderService.crearPedido(cartItems, token);
+            
+            // 2. IMPORTANTE: Guardamos los datos de la compra ANTES de limpiar
+            const datosCompra = {
+                orderId: respuestaBackend.id, // ID que devuelve el backend
+                items: [...cartItems],        // Copia de los items
+                total: totalPrice,            // Total pagado
+                buyer: { ...formData }        // Datos del cliente
+            };
+
+            // 3. Limpiamos el carrito
             clearCart(); 
-            navigate('/checkout-success');
+
+            // 4. Navegamos a la página de éxito PASANDO LOS DATOS en el 'state'
+            // OJO: La ruta debe coincidir con tu App.tsx (/checkout/success)
+            navigate('/checkout/success', { state: datosCompra });
 
         } catch (error: any) {
             console.error("Fallo la compra:", error);
-            alert("Error al comprar: " + error.message);
-            navigate('/checkout-error');
+            alert("Error al procesar la compra: " + error.message);
+            navigate('/checkout/failure');
         }
     };
 
@@ -109,7 +121,7 @@ const CheckoutPage: React.FC = () => {
                     <h1>Checkout</h1>
                 </header>
                 <div className="form-container" style={{textAlign: 'center'}}>
-                    <p>Tu carrito está vacío. No puedes proceder al pago.</p>
+                    <p>Tu carrito está vacío.</p>
                     <Link to="/products" className="btn-primary" style={{textDecoration: 'none', padding: '0.8rem 1.5rem', display: 'inline-block', width: 'auto'}}>
                         Ver productos
                     </Link>
@@ -121,7 +133,7 @@ const CheckoutPage: React.FC = () => {
     return (
         <main id="main-content">
             <header className="page-header">
-                <h1>Checkout</h1>
+                <h1>Finalizar Compra</h1>
             </header>
             <div className="form-container">
                 <form id="form-checkout" onSubmit={handleSubmit} noValidate>
@@ -138,46 +150,97 @@ const CheckoutPage: React.FC = () => {
                         <hr style={{borderColor: '#444'}} />
                         <h3 style={{display: 'flex', justifyContent: 'space-between'}}>
                             <span>Total a pagar:</span>
-                            <span style={{color: 'var(--accent-2)'}}>{money(totalPrice)}</span>
+                            <span style={{color: '#39FF14'}}>{money(totalPrice)}</span>
                         </h3>
                     </fieldset>
+
                     <fieldset>
-                        <legend>Información del cliente</legend>
-                        <label>Nombres
-                            <input name="firstName" required value={formData.firstName} onChange={handleChange} />
+                        <legend>Datos de Envío</legend>
+                        
+                        <div style={{ marginBottom: '15px' }}>
+                            <label style={{ display: 'block', marginBottom: '5px' }}>Nombres</label>
+                            <input 
+                                name="firstName" 
+                                required 
+                                value={formData.firstName} 
+                                onChange={handleChange} 
+                                style={{ width: '100%', padding: '8px' }}
+                            />
                             {errors.firstName && <small className="error">{errors.firstName}</small>}
-                        </label>
-                        <label>Apellidos
-                            <input name="lastName" required value={formData.lastName} onChange={handleChange} />
+                        </div>
+
+                        <div style={{ marginBottom: '15px' }}>
+                            <label style={{ display: 'block', marginBottom: '5px' }}>Apellidos</label>
+                            <input 
+                                name="lastName" 
+                                required 
+                                value={formData.lastName} 
+                                onChange={handleChange} 
+                                style={{ width: '100%', padding: '8px' }}
+                            />
                             {errors.lastName && <small className="error">{errors.lastName}</small>}
-                        </label>
-                        <label>Correo
-                            <input name="email" type="email" required value={formData.email} onChange={handleChange} />
+                        </div>
+
+                        <div style={{ marginBottom: '15px' }}>
+                            <label style={{ display: 'block', marginBottom: '5px' }}>Correo</label>
+                            <input 
+                                name="email" 
+                                type="email" 
+                                required 
+                                value={formData.email} 
+                                onChange={handleChange} 
+                                style={{ width: '100%', padding: '8px' }}
+                            />
                             {errors.email && <small className="error">{errors.email}</small>}
-                        </label>
-                    </fieldset>
-                    <fieldset>
-                        <legend>Dirección de entrega</legend>
-                        <label>Región
-                            <select name="region" required value={formData.region} onChange={handleChange}>
+                        </div>
+
+                        <div style={{ marginBottom: '15px' }}>
+                            <label style={{ display: 'block', marginBottom: '5px' }}>Región</label>
+                            <select 
+                                name="region" 
+                                required 
+                                value={formData.region} 
+                                onChange={handleChange}
+                                style={{ width: '100%', padding: '8px' }}
+                            >
                                 <option value="">Selecciona...</option>
                                 {regionNombres.map(r => <option key={r} value={r}>{r}</option>)}
                             </select>
                             {errors.region && <small className="error">{errors.region}</small>}
-                        </label>
-                        <label>Comuna
-                            <select name="comuna" required value={formData.comuna} onChange={handleChange} disabled={comunas.length === 0}>
+                        </div>
+
+                        <div style={{ marginBottom: '15px' }}>
+                            <label style={{ display: 'block', marginBottom: '5px' }}>Comuna</label>
+                            <select 
+                                name="comuna" 
+                                required 
+                                value={formData.comuna} 
+                                onChange={handleChange} 
+                                disabled={!comunas.length}
+                                style={{ width: '100%', padding: '8px' }}
+                            >
                                 <option value="">Selecciona...</option>
                                 {comunas.map(c => <option key={c} value={c}>{c}</option>)}
                             </select>
                             {errors.comuna && <small className="error">{errors.comuna}</small>}
-                        </label>
-                        <label>Dirección (Calle y Número)
-                            <input name="address" required value={formData.address} onChange={handleChange} />
+                        </div>
+
+                        <div style={{ marginBottom: '15px' }}>
+                            <label style={{ display: 'block', marginBottom: '5px' }}>Dirección</label>
+                            <input 
+                                name="address" 
+                                required 
+                                value={formData.address} 
+                                onChange={handleChange} 
+                                style={{ width: '100%', padding: '8px' }}
+                            />
                             {errors.address && <small className="error">{errors.address}</small>}
-                        </label>
+                        </div>
                     </fieldset>
-                    <button className="btn" type="submit">Pagar ahora {money(totalPrice)}</button>
+
+                    <button className="btn" type="submit" style={{ width: '100%', marginTop: '20px', background: '#39FF14', color: 'black', fontWeight: 'bold' }}>
+                        Pagar {money(totalPrice)}
+                    </button>
                 </form>
             </div>
         </main>

@@ -1,107 +1,146 @@
-
-import React, { useState, useEffect } from 'react';
-import { categories } from '../data/products'; 
+import React, { useEffect, useState } from 'react';
 import ProductCard from '../components/ProductCard';
-import type { Product } from '../Types';
 import { ProductService } from '../services/ProductService';
+import type { Product } from '../Types';
+import { useToast } from '../context/ToastContext';
+
+// Diccionario para traducir tus códigos de BD a nombres bonitos
+const CATEGORY_NAMES: Record<string, string> = {
+    'CO': 'Consolas',
+    'JM': 'Juegos de Mesa',
+    'AC': 'Accesorios',
+    'CG': 'Computadores',
+    'SG': 'Sillas Gamer',
+    'MS': 'Mouses',
+    'MP': 'Mousepads',
+    'PP': 'Merchandising'
+};
 
 const ProductsPage = () => {
+  const { showToast } = useToast();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  // Estados
+  const [activeCategory, setActiveCategory] = useState("TODOS");
+  const [sortOrder, setSortOrder] = useState("default");
+  const [availableCategories, setAvailableCategories] = useState<string[]>([]);
 
-    const [allProducts, setAllProducts] = useState<Product[]>([]);
-    const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const data = await ProductService.listar();
+        setProducts(data);
 
-    const [searchQuery, setSearchQuery] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState('');
-
-    useEffect(() => {
-        const cargarProductos = async () => {
-            const data = await ProductService.listar();
-            
-            if (data.length > 0) {
-                setAllProducts(data);
-                setFilteredProducts(data);
-            } else {
-                ("No se encontraron productos en el servidor.");
-            }
-        };
-
-        cargarProductos();
-    }, []);
-
-    
-    const handleFilterApply = () => {
-        let tempProducts = allProducts;
-
-        if (selectedCategory) {
-            tempProducts = tempProducts.filter(p => p.category === selectedCategory);
-        }
-
-        if (searchQuery) {
-            const lowerQuery = searchQuery.toLowerCase();
-            tempProducts = tempProducts.filter(p =>
-                p.name.toLowerCase().includes(lowerQuery) ||
-                p.desc?.toLowerCase().includes(lowerQuery)
-            );
-        }
-
-        setFilteredProducts(tempProducts);
+        // Extraer categorías únicas reales de los productos (Ej: ['CO', 'MS', 'AC'])
+        const uniqueCats = Array.from(new Set(data.map(p => p.category)));
+        setAvailableCategories(uniqueCats);
+        
+      } catch (error) {
+        showToast("Error conectando al servidor", "error");
+      } finally {
+        setLoading(false);
+      }
     };
+    loadData();
+  }, []);
 
-    return (
-        <main id="main-content" className="gamer-bg-2">
-            <header className="page-header">
-                <h1>Productos</h1>
-            </header>
+  // Filtrar y Ordenar
+  const filteredProducts = products
+    .filter(p => activeCategory === "TODOS" || p.category === activeCategory)
+    .sort((a, b) => {
+      if (sortOrder === "low-high") return a.price - b.price;
+      if (sortOrder === "high-low") return b.price - a.price;
+      return 0;
+    });
 
-            <div className="products-layout">
+  return (
+    <div style={{ background: '#121212', minHeight: '100vh', color: '#fff' }}>
+      
+      {/* 1. HERO BANNER (Cabecera impactante) */}
+      <div className="cyber-banner">
+        <h1>Level Up <span style={{ color: '#fff', fontSize:'1rem', verticalAlign:'middle', border:'1px solid #fff', padding:'2px 6px' }}>STORE</span></h1>
+        <p style={{ color: '#ddd', fontSize: '1.2rem', marginTop: '10px', background:'rgba(0,0,0,0.6)', padding:'5px 15px', borderRadius:'20px' }}>
+          El arsenal definitivo para tu setup
+        </p>
+      </div>
 
-                {/* -- Barra lateral de Filtros -- */}
-                <aside aria-label="Filtros">
-                    <h3>Filtros</h3>
-                    <label>Categoría
-                        <select
-                            id="filter-category"
-                            value={selectedCategory}
-                            onChange={e => setSelectedCategory(e.target.value)}
-                        >
-                            <option value="">Todas</option>
-                            {categories.map(cat => (
-                                <option key={cat.id} value={cat.id}>{cat.name}</option>
-                            ))}
-                        </select>
-                    </label>
-                    <label>Buscar
-                        <input
-                            id="filter-q"
-                            type="search"
-                            placeholder="ej. 'mouse'"
-                            value={searchQuery}
-                            onChange={e => setSearchQuery(e.target.value)}
-                        />
-                    </label>
-                    <button
-                        className="btn"
-                        id="apply-filters"
-                        onClick={handleFilterApply}
-                    >
-                        Aplicar
-                    </button>
-                </aside>
+      <div className="cyber-container">
+        
+        {/* 2. SIDEBAR DE CRISTAL (Izquierda) */}
+        <aside className="cyber-sidebar">
+          <h3 className="cyber-filter-title">Categorías</h3>
+          
+          <button 
+            className={`cyber-filter-btn ${activeCategory === "TODOS" ? 'active' : ''}`}
+            onClick={() => setActiveCategory("TODOS")}
+          >
+            🚀 Todo el Catálogo
+          </button>
 
-                {/* -- Sección de la Grilla de Productos -- */}
-                <section className="products" id="products-grid" aria-live="polite">
-                    {filteredProducts.length > 0 ? (
-                        filteredProducts.map(product => (
-                            <ProductCard key={product.code} product={product} />
-                        ))
-                    ) : (
-                        <p>No se encontraron productos con esos filtros.</p>
-                    )}
-                </section>
+          {availableCategories.map(code => (
+            <button 
+              key={code}
+              className={`cyber-filter-btn ${activeCategory === code ? 'active' : ''}`}
+              onClick={() => setActiveCategory(code)}
+            >
+              {/* Si existe traducción úsala, si no, muestra el código tal cual */}
+              {CATEGORY_NAMES[code] || code}
+            </button>
+          ))}
+        </aside>
 
+        {/* 3. GRILLA DE PRODUCTOS (Derecha) */}
+        <main>
+          {/* Barra de control */}
+          <div className="cyber-header">
+            <span className="cyber-count">
+              Detectados: <span style={{ color: '#39FF14' }}>{filteredProducts.length}</span> items
+            </span>
+            
+            <select 
+              className="cyber-select"
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value)}
+            >
+              <option value="default">Relevancia</option>
+              <option value="low-high">Precio: Menor a Mayor</option>
+              <option value="high-low">Precio: Mayor a Menor</option>
+            </select>
+          </div>
+
+          {/* Grid */}
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '100px', fontSize: '1.5rem', color: '#39FF14' }}>
+              Cargando Sistema...
             </div>
+          ) : filteredProducts.length > 0 ? (
+            <div className="cyber-grid">
+              {filteredProducts.map(product => (
+                <ProductCard key={product.code} product={product} />
+              ))}
+            </div>
+          ) : (
+            <div style={{ 
+                textAlign: 'center', padding: '60px', 
+                background: 'rgba(255,255,255,0.05)', borderRadius: '12px' 
+            }}>
+              <h3>No se encontraron productos en esta sección.</h3>
+              <button 
+                onClick={() => setActiveCategory("TODOS")}
+                className="btn" 
+                style={{ marginTop: '20px', background: '#39FF14', color: '#000', fontWeight: 'bold' }}
+              >
+                Volver al Catálogo Completo
+              </button>
+            </div>
+          )}
         </main>
-    );
-}
+
+      </div>
+    </div>
+  );
+};
 
 export default ProductsPage;

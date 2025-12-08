@@ -37,7 +37,8 @@ const DashboardPage = () => {
                 setOrderCount(ordersData.length);
                 
                 // Tomamos los últimos 5 pedidos
-                setRecentOrders(ordersData.slice(0, 5));
+                const ultimosPedidos = [...ordersData].reverse().slice(0, 5);
+                setRecentOrders(ultimosPedidos);
 
                 // 4. Cargar Mensajes Reales 
                 const msgs = await ContactService.listar(token);

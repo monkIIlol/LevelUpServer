@@ -1,10 +1,21 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import type { User, AuthContextType } from '../Types'; 
+import type { ReactNode } from 'react';
+import type { User } from '../Types'; // Asegúrate que la ruta sea correcta
+
+// Definimos qué funciones tendrá nuestro contexto
+interface AuthContextType {
+    currentUser: User | null;
+    isLoading: boolean; // <--- NUEVO: Para saber si estamos cargando sesión
+    login: (user: User) => Promise<boolean>;
+    register: (user: User) => Promise<boolean>;
+    logout: () => void;
+}
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const [isLoading, setIsLoading] = useState(true); // <--- NUEVO: Empezamos cargando
 
     // Al cargar la página, revisamos si ya hay un usuario guardado
     useEffect(() => {
@@ -14,11 +25,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (storedUser && token) {
             setCurrentUser(JSON.parse(storedUser));
         }
+        
+        // ¡IMPORTANTE! Avisamos que ya terminamos de revisar
+        setIsLoading(false); 
     }, []);
 
     // --- LOGIN REAL (Conectado a Java) ---
-    const login = async (user: User) => {
-        // NOTA: Aquí 'user' viene con email y password desde el formulario
+    const login = async (user: User): Promise<boolean> => {
         try {
             const response = await fetch('http://localhost:8090/auth/login', {
                 method: 'POST',
@@ -32,16 +45,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             if (response.ok) {
                 const data = await response.json();
                 
-                // data.token -> Es el JWT que te dio Java
-                // data.user -> Son los datos del usuario (nombre, rol, etc)
-                
                 // Guardamos en el navegador
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('currentUser', JSON.stringify(data.user));
                 
                 // Actualizamos el estado de React
                 setCurrentUser(data.user);
-                return true; // Éxito
+                return true; 
             } else {
                 alert("Error: Credenciales incorrectas");
                 return false;
@@ -54,25 +64,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     // --- REGISTRO REAL (Conectado a Java) ---
-    const register = async (user: User) => {
+    const register = async (user: User): Promise<boolean> => {
         try {
             const response = await fetch('http://localhost:8090/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(user) // Enviamos el usuario completo
+                body: JSON.stringify(user)
             });
 
             if (response.ok) {
-                const data = await response.json();
-                // Opcional: Podrías hacer login automático aquí
+                // Si el backend devuelve el usuario creado, genial. Si no, solo avisamos.
+                // const data = await response.json();
                 alert("¡Cuenta creada con éxito! Ahora inicia sesión.");
+                return true;
             } else {
                 const errorMsg = await response.text();
                 alert("Error al registrar: " + errorMsg);
+                return false;
             }
         } catch (error) {
             console.error("Error de registro:", error);
             alert("No se pudo conectar al servidor.");
+            return false;
         }
     };
 
@@ -81,10 +94,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         localStorage.removeItem('currentUser');
         localStorage.removeItem('token');
         setCurrentUser(null);
+        window.location.href = '/login'; // Forzamos ir al login
     };
 
     return (
-        <AuthContext.Provider value={{ currentUser, login, logout, register }}>
+        <AuthContext.Provider value={{ currentUser, isLoading, login, logout, register }}>
             {children}
         </AuthContext.Provider>
     );
