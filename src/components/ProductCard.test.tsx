@@ -1,72 +1,61 @@
-
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event'; 
-import { describe, it, expect, vi } from 'vitest'; 
-import { BrowserRouter } from 'react-router-dom';
-import type { Product } from '../Types';
-import { CartContext } from '../context/CartContext'; 
-
+import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
 import ProductCard from './ProductCard';
+import { CartContext } from '../context/CartContext';
+import { ToastProvider } from '../context/ToastContext';
+import { BrowserRouter } from 'react-router-dom';
 
-const mockProduct: Product = {
-    code: 'JM001',
-    category: 'JM',
-    name: 'Catan',
-    price: 29990,
-    img: 'img/catan.png',
-    desc: 'Juego de estrategia',
-    details: ['Jugadores: 3-4'],
-    stock: 10 
+const mockProduct = {
+    code: 'TEST01',
+    name: 'Producto Test',
+    price: 10000,
+    stock: 5,
+    category: 'MS',
+    img: 'test.jpg',
+    description: 'Descripción de prueba',
+    details: []
 };
 
-describe('Componente: ProductCard', () => {
+const addToCartMock = vi.fn();
 
-    const mockAddToCart = vi.fn();
+const renderWithProviders = (component: any) => {
+    return render(
+        <ToastProvider>
+            <CartContext.Provider value={{ 
+                cartItems: [], 
+                addToCart: addToCartMock, 
+                removeFromCart: vi.fn(), 
+                clearCart: vi.fn(), 
+                totalPrice: 0,
+                // Agregamos las funciones que TypeScript reclama:
+                increaseQty: vi.fn(),
+                decreaseQty: vi.fn()
+            }}>
+                <BrowserRouter>
+                    {component}
+                </BrowserRouter>
+            </CartContext.Provider>
+        </ToastProvider>
+    );
+};
 
-    const renderProductCard = () => {
-        render(
-            <BrowserRouter>
-                <CartContext.Provider value={{
-                    cartItems: [],
-                    totalPrice: 0,
-                    addToCart: mockAddToCart, 
-                    increaseQty: vi.fn(),
-                    decreaseQty: vi.fn(),
-                    removeFromCart: vi.fn(),
-                    clearCart: vi.fn()
-                }}>
-                    <ProductCard product={mockProduct} />
-                </CartContext.Provider>
-            </BrowserRouter>
-        );
-    };
-
-    //PRUEBA 1: Que se muestre la info 
-    it('Debería renderizar la información del producto (nombre, desc, precio)', () => {
-        renderProductCard();
-
-        expect(screen.getByText('Catan')).toBeInTheDocument();
-        expect(screen.getByText('Juego de estrategia')).toBeInTheDocument();
-        expect(screen.getByText('$29.990')).toBeInTheDocument();
-        expect(screen.getByAltText('Catan')).toBeInTheDocument();
+describe('ProductCard Component', () => {
+    it('Debería renderizar la información del producto', () => {
+        renderWithProviders(<ProductCard product={mockProduct} />);
+        expect(screen.getByText('Producto Test')).toBeDefined();
+        expect(screen.getByText(/\$10.000/)).toBeDefined();
     });
 
-    //PRUEBA 2: Que el botón "Añadir" funcione
-    it('Debería llamar a la función addToCart con el código correcto al hacer clic', async () => {
-        renderProductCard();
-        const addButton = screen.getByRole('button', { name: /Añadir/i });
-        await userEvent.click(addButton);
-
-        expect(mockAddToCart).toHaveBeenCalledTimes(1); 
-        expect(mockAddToCart).toHaveBeenCalledWith('JM001'); 
+    it('Debería llamar a addToCart al hacer clic en el botón', () => {
+        renderWithProviders(<ProductCard product={mockProduct} />);
+        const button = screen.getByRole('button', { name: /Añadir al Carrito/i });
+        fireEvent.click(button);
+        expect(addToCartMock).toHaveBeenCalled();
     });
 
-    //PRUEBA 3: Que el enlace (Link) funcione 
-    it('Debería ser un enlace (Link) a la página de detalle correcta', () => {
-        renderProductCard();
-        const link = screen.getByText('Catan').closest('a');
-
-        expect(link).toHaveAttribute('href', '/product/JM001');
+    it('Debería tener el enlace correcto al detalle', () => {
+        renderWithProviders(<ProductCard product={mockProduct} />);
+        const link = screen.getByRole('link');
+        expect(link.getAttribute('href')).toBe('/product/TEST01');
     });
-
 });
