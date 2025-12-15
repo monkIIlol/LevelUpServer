@@ -27,7 +27,6 @@ const renderWithProviders = (component: any) => {
                 removeFromCart: vi.fn(), 
                 clearCart: vi.fn(), 
                 totalPrice: 0,
-                // Agregamos las funciones que TypeScript reclama:
                 increaseQty: vi.fn(),
                 decreaseQty: vi.fn()
             }}>

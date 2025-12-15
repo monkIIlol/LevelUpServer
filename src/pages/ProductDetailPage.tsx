@@ -8,7 +8,7 @@ import { useToast } from '../context/ToastContext';
 const ProductDetailPage = () => {
   const { code } = useParams();
   const navigate = useNavigate();
-  const { addToCart } = useContext(CartContext)!; // ! asegura que existe
+  const { addToCart } = useContext(CartContext)!; 
   const { showToast } = useToast();
   
   const [product, setProduct] = useState<Product | null>(null);

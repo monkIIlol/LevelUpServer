@@ -1,11 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import type { User } from '../Types'; // Asegúrate que la ruta sea correcta
+import type { User } from '../Types'; 
 
-// Definimos qué funciones tendrá nuestro contexto
 interface AuthContextType {
     currentUser: User | null;
-    isLoading: boolean; // <--- NUEVO: Para saber si estamos cargando sesión
+    isLoading: boolean; 
     login: (user: User) => Promise<boolean>;
     register: (user: User) => Promise<boolean>;
     logout: () => void;
@@ -15,9 +14,8 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
-    const [isLoading, setIsLoading] = useState(true); // <--- NUEVO: Empezamos cargando
+    const [isLoading, setIsLoading] = useState(true); 
 
-    // Al cargar la página, revisamos si ya hay un usuario guardado
     useEffect(() => {
         const storedUser = localStorage.getItem('currentUser');
         const token = localStorage.getItem('token');
@@ -26,7 +24,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setCurrentUser(JSON.parse(storedUser));
         }
         
-        // ¡IMPORTANTE! Avisamos que ya terminamos de revisar
         setIsLoading(false); 
     }, []);
 
@@ -45,11 +42,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             if (response.ok) {
                 const data = await response.json();
                 
-                // Guardamos en el navegador
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('currentUser', JSON.stringify(data.user));
                 
-                // Actualizamos el estado de React
                 setCurrentUser(data.user);
                 return true; 
             } else {
@@ -73,8 +68,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             });
 
             if (response.ok) {
-                // Si el backend devuelve el usuario creado, genial. Si no, solo avisamos.
-                // const data = await response.json();
+
                 alert("¡Cuenta creada con éxito! Ahora inicia sesión.");
                 return true;
             } else {
