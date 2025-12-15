@@ -8,8 +8,7 @@ const money = (clp: number) => {
 const CheckoutSuccessPage: React.FC = () => {
     const location = useLocation();
     
-    // AQUÍ RECUPERAMOS LOS DATOS REALES
-    // Si location.state es null, significa que entraron directo por URL sin comprar
+
     const state = location.state as { orderId: string, items: any[], total: number, buyer: any } | null;
 
     if (!state) {

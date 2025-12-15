@@ -49,11 +49,9 @@ export const OrderService = {
 
             const dataBackend = await response.json();
 
-            // --- AQUÍ ESTÁ LA MAGIA: TRADUCCIÓN ---
-            // Convertimos el formato de Java (fecha, detalles) 
-            // al formato de React (timestamp, items)
+
             const pedidosFormateados = dataBackend.map((boleta: any) => ({
-                id: boleta.id.toString(), // Java manda número, React usa string a veces
+                id: boleta.id.toString(), 
                 timestamp: new Date(boleta.fecha).toLocaleString(), // Formatear fecha
                 total: boleta.total,
                 user: boleta.usuario, // Opcional
