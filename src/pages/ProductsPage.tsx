@@ -4,7 +4,7 @@ import { ProductService } from '../services/ProductService';
 import type { Product } from '../Types';
 import { useToast } from '../context/ToastContext';
 
-// Diccionario para traducir tus códigos de BD a nombres bonitos
+
 const CATEGORY_NAMES: Record<string, string> = {
     'CO': 'Consolas',
     'JM': 'Juegos de Mesa',
@@ -33,7 +33,7 @@ const ProductsPage = () => {
         const data = await ProductService.listar();
         setProducts(data);
 
-        // Extraer categorías únicas reales de los productos (Ej: ['CO', 'MS', 'AC'])
+
         const uniqueCats = Array.from(new Set(data.map(p => p.category)));
         setAvailableCategories(uniqueCats);
         
@@ -85,7 +85,6 @@ const ProductsPage = () => {
               className={`cyber-filter-btn ${activeCategory === code ? 'active' : ''}`}
               onClick={() => setActiveCategory(code)}
             >
-              {/* Si existe traducción úsala, si no, muestra el código tal cual */}
               {CATEGORY_NAMES[code] || code}
             </button>
           ))}
@@ -93,7 +92,6 @@ const ProductsPage = () => {
 
         {/* 3. GRILLA DE PRODUCTOS (Derecha) */}
         <main>
-          {/* Barra de control */}
           <div className="cyber-header">
             <span className="cyber-count">
               Detectados: <span style={{ color: '#39FF14' }}>{filteredProducts.length}</span> items

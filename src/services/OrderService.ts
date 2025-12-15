@@ -52,9 +52,9 @@ export const OrderService = {
 
             const pedidosFormateados = dataBackend.map((boleta: any) => ({
                 id: boleta.id.toString(), 
-                timestamp: new Date(boleta.fecha).toLocaleString(), // Formatear fecha
+                timestamp: new Date(boleta.fecha).toLocaleString(), 
                 total: boleta.total,
-                user: boleta.usuario, // Opcional
+                user: boleta.usuario, 
                 items: boleta.detalles.map((detalle: any) => ({
                     code: detalle.producto.code,
                     name: detalle.producto.name,
@@ -73,7 +73,7 @@ export const OrderService = {
 
     async listarTodos(token: string) {
         try {
-            const response = await fetch(API_URL, { // GET /api/orders
+            const response = await fetch(API_URL, { 
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -85,12 +85,12 @@ export const OrderService = {
             
             const dataBackend = await response.json();
 
-            // Mismo formateo que hicimos para "Mis Pedidos"
+
             return dataBackend.map((boleta: any) => ({
                 id: boleta.id.toString(),
                 timestamp: new Date(boleta.fecha).toLocaleString(),
                 total: boleta.total,
-                user: boleta.usuario, // Ahora sí nos sirve ver quién compró
+                user: boleta.usuario, 
                 items: boleta.detalles.map((detalle: any) => ({
                     code: detalle.producto.code,
                     name: detalle.producto.name,

@@ -20,13 +20,9 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(newCart));
   }
 
-  // --- LÓGICA DEL CARRITO ---
-  // En src/context/CartContext.tsx
 
-  // AHORA RECIBE EL OBJETO PRODUCTO COMPLETO
+
   const addToCart = (productToAdd: Product) => {
-    
-    // 1. Validar Stock (Usamos el stock que viene directo de la BD)
     if (productToAdd.stock === 0) {
         alert("Lo sentimos, este producto está agotado.");
         return;

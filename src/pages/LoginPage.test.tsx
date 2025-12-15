@@ -5,7 +5,6 @@ import { AuthContext } from '../context/AuthContext';
 import { ToastProvider } from '../context/ToastContext';
 import { BrowserRouter } from 'react-router-dom';
 
-// Mocks
 const mockLogin = vi.fn();
 
 const renderLogin = () => {
@@ -38,15 +37,15 @@ describe('Componente: LoginPage', () => {
     it('Debería llamar a la función login al enviar el formulario', async () => {
         renderLogin();
         
-        // Simulamos escribir credenciales
+        // Simula escribir credenciales
         fireEvent.change(screen.getByLabelText(/Correo/i), { target: { value: 'admin@levelup.cl' } });
         fireEvent.change(screen.getByLabelText(/Contraseña/i), { target: { value: '1234' } });
         
-        // Simulamos click en "Entrar"
+        // Simula click en "Entrar"
         const button = screen.getByRole('button', { name: /Entrar/i });
         fireEvent.click(button);
 
-        // Esperamos que llame a la función del contexto
+        // Esperar que llame a la función del contexto
         await waitFor(() => {
             expect(mockLogin).toHaveBeenCalled();
         });

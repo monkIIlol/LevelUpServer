@@ -4,7 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import ContactPage from './ContactPage';
 import { ContactService } from '../services/ContactService';
 
-// Simulamos el servicio para no llamar al backend real
+
 vi.mock('../services/ContactService', () => ({
     ContactService: {
         enviar: vi.fn()

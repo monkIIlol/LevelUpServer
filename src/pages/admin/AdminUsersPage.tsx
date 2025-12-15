@@ -2,14 +2,14 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { User } from '../../Types';
 import { UserService } from '../../services/UserService';
-import { useToast } from '../../context/ToastContext'; // Toast
+import { useToast } from '../../context/ToastContext'; 
 
 const AdminUsersPage = () => {
     const navigate = useNavigate();
     const { showToast } = useToast();
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
-    const [busqueda, setBusqueda] = useState(''); // Estado para el buscador
+    const [busqueda, setBusqueda] = useState(''); 
 
     const loadUsers = async () => {
         setLoading(true);

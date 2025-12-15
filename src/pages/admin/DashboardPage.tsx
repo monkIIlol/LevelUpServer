@@ -24,15 +24,15 @@ const DashboardPage = () => {
             }
 
             try {
-                // 1. Cargar Productos Reales 
+                // 1. Cargar Productos 
                 const productsData = await ProductService.listar();
                 setProductCount(productsData.length);
 
-                // 2. Cargar Usuarios Reales 
+                // 2. Cargar Usuarios  
                 const usersData = await UserService.listar(token);
                 setUserCount(usersData.length);
 
-                // 3. Cargar Pedidos Reales 
+                // 3. Cargar Pedidos  
                 const ordersData = await OrderService.listarTodos(token);
                 setOrderCount(ordersData.length);
                 
@@ -40,7 +40,7 @@ const DashboardPage = () => {
                 const ultimosPedidos = [...ordersData].reverse().slice(0, 5);
                 setRecentOrders(ultimosPedidos);
 
-                // 4. Cargar Mensajes Reales 
+                // 4. Cargar Mensajes 
                 const msgs = await ContactService.listar(token);
                 setMensajes(msgs);
 

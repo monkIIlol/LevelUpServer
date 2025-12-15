@@ -30,15 +30,15 @@ import CheckoutSuccessPage from './pages/CheckoutSuccessPage';
 import CheckoutErrorPage from './pages/CheckoutErrorPage';
 // CONTEXTOS
 import { ToastProvider } from './context/ToastContext';
-import { AuthProvider } from './context/AuthContext'; // Asegúrate de envolver con Auth
-import { CartProvider } from './context/CartContext'; // Asegúrate de envolver con Cart
+import { AuthProvider } from './context/AuthContext'; 
+import { CartProvider } from './context/CartContext'; 
 
 const AppLayout = () => {
   return (
     <>
       <ScrollToTop />
       <Header />
-      <div style={{ minHeight: '80vh' }}> {/* Para que el footer no suba si hay poco contenido */}
+      <div style={{ minHeight: '80vh' }}> 
         <Outlet />
       </div>
       <Footer />
@@ -59,7 +59,7 @@ function App() {
               <Route path="register" element={<RegisterPage />} />
               <Route path="products" element={<ProductsPage />} />
               <Route path="product/:code" element={<ProductDetailPage />} />
-              <Route path="carrito" element={<CartPage />} /> {/* Ojo: Cambié 'carrito' a 'cart' por estándar, ajusta si prefieres */}
+              <Route path="carrito" element={<CartPage />} /> 
               <Route path="about" element={<AboutPage />} />
               <Route path="contact" element={<ContactPage />} />
               <Route path="blog" element={<BlogPage />} />

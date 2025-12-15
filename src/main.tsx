@@ -24,7 +24,7 @@ if (!existeAdmin) {
     firstName: 'Super',
     lastName: 'Admin',
     email: 'admin@levelup.cl',
-    password: 'admin123', // Contraseña por defecto
+    password: 'admin123', 
     role: 'Administrador',
     region: 'Metropolitana de Santiago',
     comuna: 'Santiago',

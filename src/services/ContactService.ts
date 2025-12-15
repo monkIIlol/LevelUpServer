@@ -3,7 +3,7 @@ import type { ContactoMensaje } from '../Types';
 const API_URL = 'http://localhost:8090/api/messages';
 
 export const ContactService = {
-    // Enviar mensaje (Público)
+    // Enviar mensaje 
     async enviar(data: { name: string, email: string, comment: string }) {
         try {
             const response = await fetch(API_URL, {
@@ -18,7 +18,7 @@ export const ContactService = {
         }
     },
 
-    // Listar mensajes (Para el Dashboard)
+    // Listar mensajes 
     async listar(token: string): Promise<ContactoMensaje[]> {
         try {
             const response = await fetch(API_URL, {
@@ -27,7 +27,7 @@ export const ContactService = {
             if (!response.ok) return [];
             
             const data = await response.json();
-            // Adaptamos los datos si es necesario (Java manda 'id' numérico, React suele esperar string en listas)
+
             return data.map((m: any) => ({
                 id: m.id.toString(),
                 name: m.name,
